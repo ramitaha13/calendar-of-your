@@ -76,7 +76,7 @@ const ElectionDay = () => {
               />
               <h1 className="text-7xl font-bold text-white mb-8">ختام طه</h1>
               <p className="text-4xl text-blue-100 mb-6">
-                جدول اعمال لرئيس نادر طه
+                جدول اعمال لرئيس المجلس نادر طه
               </p>
               <div className="max-w-4xl mx-auto">
                 <p className="text-2xl text-blue-100 leading-relaxed">

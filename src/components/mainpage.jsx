@@ -213,10 +213,10 @@ const MainContent = () => {
                   {translations.husband}
                 </p>
                 <a
-                  href="tel:0543277208"
+                  href="tel:0543272208"
                   className="text-white text-xl hover:text-amber-400 transition-colors duration-200 flex justify-center items-center gap-2"
                 >
-                  0543277208
+                  0543272208
                 </a>
               </div>
 
