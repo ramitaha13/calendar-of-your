@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import naderPhoto from "/src/assets/nader.JPG";
+import khetamtaha from "/src/assets/1.JPG";
 
 const ElectionDay = () => {
   const navigate = useNavigate();
@@ -70,15 +70,17 @@ const ElectionDay = () => {
           <div className="container mx-auto px-4">
             <div className="flex flex-col items-center text-center">
               <img
-                src={naderPhoto}
-                alt="نادر طه"
-                className="w-96 h-96 object-cover rounded-2xl border-8 border-white shadow-2xl mb-12"
+                src={khetamtaha}
+                alt="ختام طه"
+                className="w-full max-w-2xl h-96 object-cover object-top rounded-2xl border-8 border-white shadow-2xl mb-12"
               />
-              <h1 className="text-7xl font-bold text-white mb-8">نادر طه</h1>
-              <p className="text-4xl text-blue-100 mb-6">يوميات مدير عام</p>
+              <h1 className="text-7xl font-bold text-white mb-8">ختام طه</h1>
+              <p className="text-4xl text-blue-100 mb-6">
+                جدول اعمال لرئيس نادر طه
+              </p>
               <div className="max-w-4xl mx-auto">
                 <p className="text-2xl text-blue-100 leading-relaxed">
-                  مرشحكم القادم للانتخابات
+                  מהנלת לשכה ח'תאם טאהא
                 </p>
               </div>
             </div>
