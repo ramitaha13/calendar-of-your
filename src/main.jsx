@@ -17,6 +17,7 @@ import Addemail from "../src/components/addemail.jsx";
 import Writedoce from "../src/components/writedoce.jsx";
 import Address from "../src/components/address.jsx";
 import Addaddress from "../src/components/addaddress.jsx";
+import Pastdates from "../src/components/pastdates.jsx";
 
 const router = createBrowserRouter([
   {
@@ -78,6 +79,10 @@ const router = createBrowserRouter([
   {
     path: "/addaddress",
     element: <Addaddress />,
+  },
+  {
+    path: "/pastdates",
+    element: <Pastdates />,
   },
 ]);
 

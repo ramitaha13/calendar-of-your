@@ -24,6 +24,7 @@ const translations = {
     notes: "ملاحظات",
     importantDates: "مواعيد هامة",
     todayDates: "مواعيد اليوم",
+    expiredDates: "تواريخ منتهية الصلاحية",
     phoneNumbers: "ارقام هواتف",
     importantEmails: "إيميلات يجب تذكرها",
     writeDoc: "صياغة الوثيقة",
@@ -46,6 +47,7 @@ const translations = {
     notes: "הערות",
     importantDates: "תאריכים חשובים",
     todayDates: "תאריכי היום",
+    expiredDates: "תאריכים שעברו תוקף",
     phoneNumbers: "מספרי טלפון",
     importantEmails: "אימיילים לזכור",
     writeDoc: "ניסוח מכתב",
@@ -161,6 +163,11 @@ const MainContent = () => {
           icon={Calendar}
           title={translations.todayDates}
           onClick={() => navigate("/nowdate")}
+        />
+        <NavigationCard
+          icon={Calendar}
+          title={translations.expiredDates}
+          onClick={() => navigate("/pastdates")}
         />
         <NavigationCard
           icon={User}
