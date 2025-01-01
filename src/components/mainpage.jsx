@@ -8,6 +8,7 @@ import {
   Globe,
   FileText,
   MapPin,
+  Briefcase,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import chatgpt1 from "/src/assets/2.JPG";
@@ -194,7 +195,7 @@ const MainContent = () => {
           onClick={() => navigate("/address")}
         />
         <NavigationCard
-          icon={FileText}
+          icon={Briefcase}
           title={translations.tasks}
           onClick={() => navigate("/Tasks")}
         />
