@@ -202,6 +202,46 @@ const MainContent = () => {
           </div>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
+            <a
+              href="https://chatgpt.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full"
+            >
+              <img
+                src="src/assets/2.png"
+                alt="ChatGPT"
+                className="mx-auto hover:opacity-80 transition-opacity h-12 w-12 md:h-16 md:w-16"
+              />
+              <span className="block mt-2 text-blue-900">ChatGPT</span>
+              <p className="text-gray-600 mt-2 text-sm md:text-base">
+                آلة تقوم بكل شيء من أجلك وتجعل حياتك سهلة
+              </p>
+            </a>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
+            <a
+              href="https://gemini.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full"
+            >
+              <img
+                src="src/assets/3.png"
+                alt="Gemini AI"
+                className="mx-auto hover:opacity-80 transition-opacity h-12 w-12 md:h-16 md:w-16"
+              />
+              <span className="block mt-2 text-blue-900">Gemini AI</span>
+              <p className="text-gray-600 mt-2 text-sm md:text-base">
+                ذكاء اصطناعي متقدم يساعدك في جميع المهام
+              </p>
+            </a>
+          </div>
+        </div>
+
         <div className="bg-gradient-to-r from-blue-800 to-cyan-600 rounded-xl p-6 md:p-8 shadow-lg">
           <div className="text-center">
             <h2 className="text-xl md:text-2xl font-bold text-white mb-6">
