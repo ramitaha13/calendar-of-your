@@ -1,18 +1,8 @@
 import React, { useEffect, createContext, useContext, useState } from "react";
-import {
-  LogOut,
-  Building2,
-  Users,
-  User,
-  ClipboardList,
-  Calendar,
-  Mail,
-  ArrowRight,
-  Phone,
-  Save,
-  Globe,
-} from "lucide-react";
+import { LogOut, Building2, User, Calendar, Mail, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import chatgpt1 from "/src/assets/2.JPG";
+import Gemini1 from "/src/assets/3.JPG";
 
 // Create Language Context
 const LanguageContext = createContext();
@@ -211,7 +201,7 @@ const MainContent = () => {
               className="inline-block w-full"
             >
               <img
-                src="src/assets/2.png"
+                src={chatgpt1}
                 alt="ChatGPT"
                 className="mx-auto hover:opacity-80 transition-opacity h-12 w-12 md:h-16 md:w-16"
               />
@@ -230,7 +220,7 @@ const MainContent = () => {
               className="inline-block w-full"
             >
               <img
-                src="src/assets/3.png"
+                src={Gemini1}
                 alt="Gemini AI"
                 className="mx-auto hover:opacity-80 transition-opacity h-12 w-12 md:h-16 md:w-16"
               />
