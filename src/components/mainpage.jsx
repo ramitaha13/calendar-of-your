@@ -18,11 +18,13 @@ const translations = {
     phoneNumbers: "ارقام هواتف",
     importantEmails: "إيميلات يجب تذكرها",
     writeDoc: "صياغة الوثيقة",
+    addresses: "عناوين للتذكر",
     linksAndDirections: "روابط وتوجيهات",
     addNotes: "اضافة ملاحظات",
     addDates: "اضافة مواعيد هامة",
     addPhones: "اضافة ارقام هواتف",
     addEmail: "اضافة Email",
+    addAddress: "إضافة عنوان",
     contactUs: "تواصل معنا للمساعدة",
     husband: "زوجك",
     son: "ابنك",
@@ -36,11 +38,13 @@ const translations = {
     phoneNumbers: "מספרי טלפון",
     importantEmails: "אימיילים לזכור",
     writeDoc: "ניסוח מכתב",
+    addresses: "כתובות לזכור",
     linksAndDirections: "קישורים והנחיות",
     addNotes: "הוסף הערות",
     addDates: "הוסף תאריכים חשובים",
     addPhones: "הוסף מספרי טלפון",
     addEmail: "הוסף אימייל",
+    addAddress: "הוסף כתובת",
     contactUs: "צור קשר לעזרה",
     husband: "בעלך",
     son: "בנך",
@@ -160,6 +164,11 @@ const MainContent = () => {
           title={translations.writeDoc}
           onClick={() => navigate("/writedoce")}
         />
+        <NavigationCard
+          icon={Mail}
+          title={translations.addresses}
+          onClick={() => navigate("/address")}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:gap-12">
@@ -195,6 +204,13 @@ const MainContent = () => {
             >
               <span>▶</span>
               <span>{translations.addEmail}</span>
+            </button>
+            <button
+              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+              onClick={() => navigate("/addaddress")}
+            >
+              <span>▶</span>
+              <span>{translations.addAddress}</span>
             </button>
           </div>
         </div>
