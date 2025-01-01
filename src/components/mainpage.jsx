@@ -17,6 +17,7 @@ const translations = {
     todayDates: "مواعيد اليوم",
     phoneNumbers: "ارقام هواتف",
     importantEmails: "إيميلات يجب تذكرها",
+    writeDoc: "صياغة الوثيقة",
     linksAndDirections: "روابط وتوجيهات",
     addNotes: "اضافة ملاحظات",
     addDates: "اضافة مواعيد هامة",
@@ -34,6 +35,7 @@ const translations = {
     todayDates: "תאריכי היום",
     phoneNumbers: "מספרי טלפון",
     importantEmails: "אימיילים לזכור",
+    writeDoc: "ניסוח מכתב",
     linksAndDirections: "קישורים והנחיות",
     addNotes: "הוסף הערות",
     addDates: "הוסף תאריכים חשובים",
@@ -152,6 +154,11 @@ const MainContent = () => {
           icon={Mail}
           title={translations.importantEmails}
           onClick={() => navigate("/emailimportant")}
+        />
+        <NavigationCard
+          icon={Mail}
+          title={translations.writeDoc}
+          onClick={() => navigate("/writedoce")}
         />
       </div>
 

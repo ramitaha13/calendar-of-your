@@ -14,6 +14,7 @@ import Numbers from "../src/components/numbers.jsx";
 import Addnumbers from "../src/components/addnumbers.jsx";
 import Emailimportant from "../src/components/emailimportant.jsx";
 import Addemail from "../src/components/addemail.jsx";
+import Writedoce from "../src/components/writedoce.jsx";
 
 const router = createBrowserRouter([
   {
@@ -63,6 +64,10 @@ const router = createBrowserRouter([
   {
     path: "/addemail",
     element: <Addemail />,
+  },
+  {
+    path: "/writedoce",
+    element: <Writedoce />,
   },
 ]);
 
