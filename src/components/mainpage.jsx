@@ -37,6 +37,8 @@ const translations = {
     contactUs: "تواصل معنا للمساعدة",
     husband: "زوجك",
     son: "ابنك",
+    chatGPTDescription: "آلة تقوم بكل شيء من أجلك وتجعل حياتك سهلة",
+    geminiDescription: "ذكاء اصطناعي متقدم يساعدك في جميع المهام",
   },
   he: {
     logout: "התנתק",
@@ -57,6 +59,8 @@ const translations = {
     contactUs: "צור קשר לעזרה",
     husband: "בעלך",
     son: "בנך",
+    chatGPTDescription: "מכונה שעושה הכל בשבילך והופכת את חייך לקלים",
+    geminiDescription: "בינה מלאכותית מתקדמת שעוזרת לך בכל המשימות",
   },
 };
 
@@ -139,7 +143,7 @@ const MainContent = () => {
   return (
     <div className="container mx-auto px-4 md:px-6 py-6 md:py-12">
       <h1 className="text-xl font-bold text-white mb-6 text-center md:hidden">
-        {translations.localElectionsPortal}
+        {translations.title}
       </h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8 mb-6 md:mb-12">
@@ -239,7 +243,7 @@ const MainContent = () => {
               />
               <span className="block mt-2 text-blue-900">ChatGPT</span>
               <p className="text-gray-600 mt-2 text-sm md:text-base">
-                آلة تقوم بكل شيء من أجلك وتجعل حياتك سهلة
+                {translations.chatGPTDescription}
               </p>
             </a>
           </div>
@@ -258,7 +262,7 @@ const MainContent = () => {
               />
               <span className="block mt-2 text-blue-900">Gemini AI</span>
               <p className="text-gray-600 mt-2 text-sm md:text-base">
-                ذكاء اصطناعي متقدم يساعدك في جميع المهام
+                {translations.geminiDescription}
               </p>
             </a>
           </div>
