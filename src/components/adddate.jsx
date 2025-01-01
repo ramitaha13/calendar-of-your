@@ -49,11 +49,24 @@ const AddDateForm = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  // Get today's date in YYYY-MM-DD format for the min attribute
+  const today = new Date().toISOString().split("T")[0];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
+
+    // Additional validation to ensure date is not before today
+    const selectedDate = new Date(date);
+    const todayDate = new Date(today);
+
+    if (selectedDate < todayDate) {
+      setError("لا يمكن اختيار تاريخ قبل اليوم");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const db = getDatabase();
@@ -146,6 +159,7 @@ const AddDateForm = () => {
             id="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            min={today}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
             required
           />
