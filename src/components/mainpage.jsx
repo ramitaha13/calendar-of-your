@@ -1,5 +1,14 @@
 import React, { useEffect, createContext, useContext, useState } from "react";
-import { LogOut, Building2, User, Calendar, Mail, Globe } from "lucide-react";
+import {
+  LogOut,
+  Building2,
+  User,
+  Calendar,
+  Mail,
+  Globe,
+  FileText,
+  MapPin,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import chatgpt1 from "/src/assets/2.JPG";
 import Gemini1 from "/src/assets/3.JPG";
@@ -160,12 +169,12 @@ const MainContent = () => {
           onClick={() => navigate("/emailimportant")}
         />
         <NavigationCard
-          icon={Mail}
+          icon={FileText}
           title={translations.writeDoc}
           onClick={() => navigate("/writedoce")}
         />
         <NavigationCard
-          icon={Mail}
+          icon={MapPin}
           title={translations.addresses}
           onClick={() => navigate("/address")}
         />
