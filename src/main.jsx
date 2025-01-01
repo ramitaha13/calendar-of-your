@@ -18,6 +18,8 @@ import Writedoce from "../src/components/writedoce.jsx";
 import Address from "../src/components/address.jsx";
 import Addaddress from "../src/components/addaddress.jsx";
 import Pastdates from "../src/components/pastdates.jsx";
+import Tasks from "../src/components/Tasks.jsx";
+import AddTasks from "../src/components/addTasks.jsx";
 
 const router = createBrowserRouter([
   {
@@ -83,6 +85,14 @@ const router = createBrowserRouter([
   {
     path: "/pastdates",
     element: <Pastdates />,
+  },
+  {
+    path: "/Tasks",
+    element: <Tasks />,
+  },
+  {
+    path: "/addTasks",
+    element: <AddTasks />,
   },
 ]);
 

@@ -19,6 +19,8 @@ const LanguageContext = createContext();
 // Translations object
 const translations = {
   ar: {
+    tasks: "مهام للقيام بها",
+    addTasks: "إضافة مهمة",
     logout: "تسجيل الخروج",
     title: "مذكره السلطة المحلية كابول",
     notes: "ملاحظات",
@@ -42,6 +44,8 @@ const translations = {
     geminiDescription: "ذكاء اصطناعي متقدم يساعدك في جميع المهام",
   },
   he: {
+    tasks: "משימות לעשות",
+    addTasks: "הוסף משימה",
     logout: "התנתק",
     title: "יומן הרשות המקומית כאבול",
     notes: "הערות",
@@ -189,6 +193,11 @@ const MainContent = () => {
           title={translations.addresses}
           onClick={() => navigate("/address")}
         />
+        <NavigationCard
+          icon={FileText}
+          title={translations.tasks}
+          onClick={() => navigate("/Tasks")}
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:gap-12">
@@ -231,6 +240,13 @@ const MainContent = () => {
             >
               <span>▶</span>
               <span>{translations.addAddress}</span>
+            </button>
+            <button
+              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+              onClick={() => navigate("/addTasks")}
+            >
+              <span>▶</span>
+              <span>{translations.addTasks}</span>
             </button>
           </div>
         </div>
