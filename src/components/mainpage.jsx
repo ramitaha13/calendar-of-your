@@ -9,17 +9,17 @@ import {
   FileText,
   MapPin,
   Briefcase,
+  Settings,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import chatgpt1 from "/src/assets/2.JPG";
 import Gemini1 from "/src/assets/3.JPG";
 
-// Create Language Context
 const LanguageContext = createContext();
 
-// Translations object
 const translations = {
   ar: {
+    settings: "الإعدادات",
     tasks: "مهام للقيام بها",
     addTasks: "إضافة مهمة",
     logout: "تسجيل الخروج",
@@ -45,6 +45,7 @@ const translations = {
     geminiDescription: "ذكاء اصطناعي متقدم يساعدك في جميع المهام",
   },
   he: {
+    settings: "הגדרות",
     tasks: "משימות לעשות",
     addTasks: "הוסף משימה",
     logout: "התנתק",
@@ -71,7 +72,6 @@ const translations = {
   },
 };
 
-// Language Provider Component
 const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("he");
 
@@ -198,6 +198,11 @@ const MainContent = () => {
           icon={Briefcase}
           title={translations.tasks}
           onClick={() => navigate("/Tasks")}
+        />
+        <NavigationCard
+          icon={Settings}
+          title={translations.settings}
+          onClick={() => navigate("/settings")}
         />
       </div>
 
