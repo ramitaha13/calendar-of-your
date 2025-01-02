@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { LogOut, ArrowRight, Lock, Eye, EyeOff } from "lucide-react";
+import { LogOut, ArrowRight, Lock, Eye, EyeOff, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, update, get } from "firebase/database";
+import axios from "axios";
 
+// Header Component
 const Header = () => {
   const navigate = useNavigate();
 
@@ -23,9 +25,7 @@ const Header = () => {
             <span className="mr-2">تسجيل الخروج</span>
           </button>
 
-          <h1 className="text-2xl font-bold text-blue-900">
-            تغيير كلمة المرور
-          </h1>
+          <h1 className="text-2xl font-bold text-blue-900">الإعدادات</h1>
 
           <button
             onClick={() => navigate("/mainpage")}
@@ -40,7 +40,8 @@ const Header = () => {
   );
 };
 
-const ChangePasswordForm = () => {
+// Password Change Component
+const PasswordChangeForm = () => {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -101,18 +102,8 @@ const ChangePasswordForm = () => {
     }
   };
 
-  const handlePasswordChange = (e, setPassword) => {
-    const value = e.target.value;
-    setPassword(value);
-    if (value.length > 0 && value.length < 7) {
-      setError("كلمة المرور يجب أن تكون 7 أحرف على الأقل");
-    } else {
-      setError(null);
-    }
-  };
-
   return (
-    <div className="bg-white rounded-xl p-4 md:p-8 max-w-2xl mx-auto">
+    <div className="bg-white rounded-xl p-4 md:p-8 max-w-2xl mx-auto mb-6">
       <h2 className="text-xl md:text-2xl font-bold text-blue-900 mb-6 text-right">
         تغيير كلمة المرور
       </h2>
@@ -130,6 +121,7 @@ const ChangePasswordForm = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Password fields */}
         <div className="relative">
           <label
             htmlFor="currentPassword"
@@ -172,7 +164,7 @@ const ChangePasswordForm = () => {
               type={showNewPassword ? "text" : "password"}
               id="newPassword"
               value={newPassword}
-              onChange={(e) => handlePasswordChange(e, setNewPassword)}
+              onChange={(e) => setNewPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
               required
             />
@@ -202,7 +194,7 @@ const ChangePasswordForm = () => {
               type={showConfirmPassword ? "text" : "password"}
               id="confirmPassword"
               value={confirmPassword}
-              onChange={(e) => handlePasswordChange(e, setConfirmPassword)}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
               required
             />
@@ -235,7 +227,134 @@ const ChangePasswordForm = () => {
   );
 };
 
-const ChangePasswordPage = () => {
+// Profile Image Upload Component
+const ProfileImageUpload = () => {
+  const [file, setFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const IMGBB_API_KEY = "09fbbc889aa75bba791fff0e456cc668";
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      if (selectedFile.size > 16 * 1024 * 1024) {
+        setError("حجم الملف كبير جداً. الحد الأقصى هو 16 ميغابايت");
+        return;
+      }
+
+      setFile(selectedFile);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      setError("الرجاء اختيار صورة أولاً");
+      return;
+    }
+
+    try {
+      setError(null);
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("key", IMGBB_API_KEY);
+
+      const response = await axios.post(
+        "https://api.imgbb.com/1/upload",
+        formData,
+        {
+          onUploadProgress: (progressEvent) => {
+            const progress = (progressEvent.loaded / progressEvent.total) * 100;
+            setUploadProgress(progress);
+          },
+        }
+      );
+
+      const imageUrl = response.data.data.url;
+
+      const db = getDatabase();
+      const profileRef = ref(db, "profile");
+      await update(profileRef, {
+        imageURL: imageUrl,
+      });
+
+      setSuccess("تم رفع الصورة بنجاح");
+      setUploadProgress(0);
+      setFile(null);
+      setImagePreview(null);
+    } catch (err) {
+      setError("حدث خطأ أثناء رفع الصورة");
+      console.error("Upload error:", err);
+    }
+  };
+
+  return (
+    <div className="bg-white rounded-xl p-4 md:p-8 max-w-2xl mx-auto">
+      <h2 className="text-xl md:text-2xl font-bold text-blue-900 mb-6 text-right">
+        تحميل صورة الملف الشخصي
+      </h2>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-6 text-right">
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 text-right">
+          <span className="block sm:inline">{success}</span>
+        </div>
+      )}
+
+      <div className="flex flex-col items-end space-y-4">
+        {imagePreview && (
+          <div className="w-32 h-32 rounded-full overflow-hidden">
+            <img
+              src={imagePreview}
+              alt="Preview"
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="text-right w-full"
+        />
+
+        <button
+          type="button"
+          onClick={handleUpload}
+          disabled={!file}
+          className="flex items-center bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-300"
+        >
+          <span className="ml-2">رفع الصورة</span>
+          <Upload className="h-5 w-5" />
+        </button>
+
+        {uploadProgress > 0 && uploadProgress < 100 && (
+          <div className="w-full bg-gray-200 rounded-full h-2.5">
+            <div
+              className="bg-blue-600 h-2.5 rounded-full"
+              style={{ width: `${uploadProgress}%` }}
+            ></div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+// Main Page Component
+const SettingsPage = () => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
@@ -259,7 +378,8 @@ const ChangePasswordPage = () => {
       <Header />
       <main className="min-h-screen bg-gradient-to-br from-cyan-600 via-blue-800 to-cyan-600">
         <div className="container mx-auto px-4 md:px-6 py-6 md:py-12">
-          <ChangePasswordForm />
+          <PasswordChangeForm />
+          <ProfileImageUpload />
         </div>
       </main>
       <footer className="bg-amber-400 py-3 md:py-4 fixed bottom-0 w-full">
@@ -269,4 +389,4 @@ const ChangePasswordPage = () => {
   );
 };
 
-export default ChangePasswordPage;
+export default SettingsPage;

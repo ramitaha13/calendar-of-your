@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import khetamtaha from "/src/assets/1.JPG";
+import { getDatabase, ref, onValue } from "firebase/database";
 
 const ElectionDay = () => {
   const navigate = useNavigate();
+  const [profileImage, setProfileImage] = useState("");
   const [currentTime, setCurrentTime] = useState({
     hours: 0,
     minutes: 0,
@@ -14,6 +15,15 @@ const ElectionDay = () => {
   });
 
   useEffect(() => {
+    const db = getDatabase();
+    const profileRef = ref(db, "profile/imageURL");
+    const unsubscribe = onValue(profileRef, (snapshot) => {
+      const imageURL = snapshot.val();
+      if (imageURL) {
+        setProfileImage(imageURL);
+      }
+    });
+
     const updateTime = () => {
       const now = new Date();
       const daysInArabic = [
@@ -26,7 +36,6 @@ const ElectionDay = () => {
         "السبت",
       ];
 
-      // Format date as dd/mm/yyyy
       const day = String(now.getDate()).padStart(2, "0");
       const month = String(now.getMonth() + 1).padStart(2, "0");
       const year = now.getFullYear();
@@ -44,7 +53,10 @@ const ElectionDay = () => {
     updateTime();
     const timer = setInterval(updateTime, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      clearInterval(timer);
+      unsubscribe();
+    };
   }, []);
 
   return (
@@ -65,15 +77,18 @@ const ElectionDay = () => {
       </nav>
 
       <main>
-        {/* Hero Section */}
         <div className="bg-gradient-to-b from-indigo-600 to-blue-600 pb-32 pt-20">
           <div className="container mx-auto px-4">
             <div className="flex flex-col items-center text-center">
-              <img
-                src={khetamtaha}
-                alt="ختام طه"
-                className="w-full max-w-2xl h-96 object-cover object-top rounded-2xl border-8 border-white shadow-2xl mb-12"
-              />
+              <div className="relative w-full max-w-3xl mx-auto mb-16">
+                <div className="aspect-square w-full overflow-hidden rounded-full border-8 border-white shadow-2xl">
+                  <img
+                    src={profileImage}
+                    alt="ختام طه"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
               <h1 className="text-7xl font-bold text-white mb-8">ختام طه</h1>
               <p className="text-4xl text-blue-100 mb-6">
                 جدول اعمال لرئيس المجلس نادر طه
@@ -87,14 +102,12 @@ const ElectionDay = () => {
           </div>
         </div>
 
-        {/* Current Time Section */}
         <div className="container mx-auto px-4 -mt-20">
           <div className="bg-white rounded-3xl shadow-2xl p-12">
             <h2 className="text-3xl font-bold text-center text-gray-800 mb-12">
               الوقت الحالي
             </h2>
             <div className="space-y-8">
-              {/* Date and Day Display */}
               <div className="text-center mb-8">
                 <div className="text-2xl font-bold text-blue-600 mb-2">
                   {currentTime.day}
@@ -102,7 +115,6 @@ const ElectionDay = () => {
                 <div className="text-xl text-gray-600">{currentTime.date}</div>
               </div>
 
-              {/* Time Display */}
               <div className="grid grid-cols-3 gap-8">
                 {[
                   { value: currentTime.hours, label: "ساعة" },
