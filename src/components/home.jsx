@@ -97,7 +97,7 @@ const ElectionDay = () => {
               <div className="text-center lg:text-right">
                 <h1 className="text-4xl font-bold text-white mb-4">ختام طه</h1>
                 <p className="text-xl text-blue-100 mb-2">
-                  سكرتيرة المجلس المحلي
+                  سكرتيرة رئيس المجلس المحلي
                 </p>
                 <p className="text-lg text-blue-200">מזכירה ח'תאם טאהא</p>
               </div>
