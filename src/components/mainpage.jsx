@@ -77,7 +77,6 @@ const translations = {
   },
 };
 
-// Rest of the LanguageProvider component remains the same
 const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("he");
 
@@ -94,7 +93,6 @@ const LanguageProvider = ({ children }) => {
   );
 };
 
-// Header component remains the same
 const Header = () => {
   const navigate = useNavigate();
   const { language, toggleLanguage, translations } =
@@ -207,18 +205,17 @@ const MainContent = () => {
           onClick={() => navigate("/Tasks")}
         />
         <NavigationCard
-          icon={Settings}
-          title={translations.settings}
-          onClick={() => navigate("/settings")}
-        />
-        <NavigationCard
           icon={Globe2}
           title={translations.importantWebsites}
           onClick={() => navigate("/websites")}
         />
+        <NavigationCard
+          icon={Settings}
+          title={translations.settings}
+          onClick={() => navigate("/settings")}
+        />
       </div>
 
-      {/* Rest of MainContent component remains the same */}
       <div className="grid grid-cols-1 gap-6 md:gap-12">
         <div className="bg-white rounded-xl p-4 md:p-8">
           <h2 className="text-lg md:text-xl font-bold text-blue-900 mb-4 md:mb-6 text-right">
@@ -356,7 +353,6 @@ const MainContent = () => {
 
 const MainPage = () => {
   const navigate = useNavigate();
-
   useEffect(() => {
     const username = localStorage.getItem("username");
     if (!username || username !== "Khetam") {
