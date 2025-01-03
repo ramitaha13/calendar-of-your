@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { LogIn, Clock } from "lucide-react";
+import { LogIn, Clock, Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, onValue } from "firebase/database";
+
+const Alert = ({ children }) => (
+  <div className="fixed top-4 left-4 bg-green-100 border border-green-600 text-green-800 p-4 rounded-lg">
+    {children}
+  </div>
+);
 
 const ElectionDay = () => {
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState("");
+  const [showShareAlert, setShowShareAlert] = useState(false);
   const [currentTime, setCurrentTime] = useState({
     hours: 0,
     minutes: 0,
@@ -59,31 +66,58 @@ const ElectionDay = () => {
     };
   }, []);
 
+  const handleShare = async () => {
+    const shareData = {
+      title: "مكتب السكرتارية",
+      text: "صفحة ختام طه - سكرتيرة رئيس المجلس المحلي",
+      url: window.location.href,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        setShowShareAlert(true);
+        setTimeout(() => setShowShareAlert(false), 3000);
+      }
+    } catch (err) {}
+  };
+
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50"
       dir="rtl"
     >
-      {/* Simplified Navigation */}
       <nav className="bg-white shadow-lg">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             <div className="text-2xl font-bold text-blue-600">
               مكتب السكرتارية
             </div>
-            <button
-              onClick={() => navigate("/login")}
-              className="bg-blue-600 px-6 py-2 rounded-lg text-white font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center gap-2"
-            >
-              <span>تسجيل الدخول</span>
-              <LogIn className="w-5 h-5" />
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={handleShare}
+                className="bg-blue-100 px-6 py-2 rounded-lg text-blue-600 font-semibold hover:bg-blue-200 transition-all duration-300 flex items-center gap-2"
+              >
+                <span>مشاركة</span>
+                <Share2 className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => navigate("/login")}
+                className="bg-blue-600 px-6 py-2 rounded-lg text-white font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center gap-2"
+              >
+                <span>تسجيل الدخول</span>
+                <LogIn className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </nav>
 
+      {showShareAlert && <Alert>تم نسخ الرابط بنجاح</Alert>}
+
       <main className="container mx-auto px-4 py-12">
-        {/* Profile Section */}
         <div className="bg-white rounded-3xl shadow-xl mb-12 overflow-hidden">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-12">
             <div className="flex flex-col lg:flex-row items-center gap-8">
@@ -105,7 +139,6 @@ const ElectionDay = () => {
           </div>
         </div>
 
-        {/* Time Display */}
         <div className="bg-white rounded-3xl shadow-xl p-8">
           <div className="flex items-center justify-center gap-2 mb-8">
             <Clock className="w-6 h-6 text-blue-600" />
