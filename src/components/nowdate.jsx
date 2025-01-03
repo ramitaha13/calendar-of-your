@@ -46,9 +46,24 @@ const TodayDatesPage = () => {
   const [error, setError] = useState(null);
   const [filters, setFilters] = useState({
     date: "",
+    day: "",
     title: "",
     content: "",
   });
+
+  const getDayName = (dateString) => {
+    const date = new Date(dateString);
+    const days = [
+      "الأحد",
+      "الاثنين",
+      "الثلاثاء",
+      "الأربعاء",
+      "الخميس",
+      "الجمعة",
+      "السبت",
+    ];
+    return days[date.getDay()];
+  };
 
   useEffect(() => {
     const username = localStorage.getItem("username");
@@ -73,6 +88,7 @@ const TodayDatesPage = () => {
                 .map(([key, value]) => ({
                   id: key,
                   ...value,
+                  day: value.day || getDayName(value.date), // Add day if not present
                 }))
                 .filter((date) => isSameDay(new Date(date.date), today));
 
@@ -104,16 +120,16 @@ const TodayDatesPage = () => {
     fetchDates();
   }, [navigate]);
 
-  // Rest of the code remains the same...
   const handleExportToExcel = () => {
     const dataToExport = filteredDates.map((date) => ({
       التاريخ: formatDate(date.date),
+      اليوم: date.day || getDayName(date.date),
       العنوان: date.title,
       المحتوى: date.content,
     }));
 
     const ws = XLSX.utils.json_to_sheet(dataToExport, {
-      header: ["التاريخ", "العنوان", "المحتوى"],
+      header: ["التاريخ", "اليوم", "العنوان", "المحتوى"],
     });
 
     ws["!rtl"] = true;
@@ -162,6 +178,11 @@ const TodayDatesPage = () => {
     if (newFilters.date) {
       filtered = filtered.filter((date) =>
         formatDate(date.date).includes(newFilters.date)
+      );
+    }
+    if (newFilters.day) {
+      filtered = filtered.filter((date) =>
+        (date.day || getDayName(date.date)).includes(newFilters.day)
       );
     }
     if (newFilters.title) {
@@ -218,12 +239,19 @@ const TodayDatesPage = () => {
               عدد المواعيد: {filteredDates.length}
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-4">
             <input
               type="text"
               placeholder="بحث حسب التاريخ"
               value={filters.date}
               onChange={(e) => handleFilterChange("date", e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
+            />
+            <input
+              type="text"
+              placeholder="بحث حسب اليوم"
+              value={filters.day}
+              onChange={(e) => handleFilterChange("day", e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
             />
             <input
@@ -249,6 +277,9 @@ const TodayDatesPage = () => {
                 التاريخ
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                اليوم
+              </th>
+              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 العنوان
               </th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -264,6 +295,9 @@ const TodayDatesPage = () => {
               <tr key={date.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   {formatDate(date.date)}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right">
+                  {date.day || getDayName(date.date)}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="text-sm font-medium text-gray-900">

@@ -44,6 +44,7 @@ const AddDateForm = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [date, setDate] = useState("");
+  const [day, setDay] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -51,6 +52,26 @@ const AddDateForm = () => {
 
   // Get today's date in YYYY-MM-DD format for the min attribute
   const today = new Date().toISOString().split("T")[0];
+
+  // Update day when date changes
+  useEffect(() => {
+    if (date) {
+      const selectedDate = new Date(date);
+      const days = [
+        "الأحد",
+        "الاثنين",
+        "الثلاثاء",
+        "الأربعاء",
+        "الخميس",
+        "الجمعة",
+        "السبت",
+      ];
+      const dayName = days[selectedDate.getDay()];
+      setDay(dayName);
+    } else {
+      setDay("");
+    }
+  }, [date]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,12 +97,14 @@ const AddDateForm = () => {
         title,
         content,
         date,
+        day,
       });
 
       setSuccess(true);
       setTitle("");
       setContent("");
       setDate("");
+      setDay("");
 
       setTimeout(() => {
         navigate("/importantdates");
@@ -162,6 +185,22 @@ const AddDateForm = () => {
             min={today}
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-right"
             required
+          />
+        </div>
+
+        <div>
+          <label
+            htmlFor="day"
+            className="block text-right text-gray-700 text-sm font-bold mb-2"
+          >
+            اليوم
+          </label>
+          <input
+            type="text"
+            id="day"
+            value={day}
+            readOnly
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-right"
           />
         </div>
 
