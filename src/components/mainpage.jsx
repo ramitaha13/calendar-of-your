@@ -15,6 +15,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import chatgpt1 from "/src/assets/2.JPG";
 import Gemini1 from "/src/assets/3.JPG";
+import gmail1 from "/src/assets/4.JPG";
+import outlook1 from "/src/assets/5.JPG";
 
 const LanguageContext = createContext();
 
@@ -277,6 +279,40 @@ const MainContent = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-white rounded-xl p-6 md:p-8 text-center">
             <a
+              href="https://mail.google.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full"
+            >
+              <img
+                src={gmail1}
+                alt="Gmail"
+                className="h-12 w-12 md:h-16 md:w-16 mx-auto hover:opacity-80 transition-opacity"
+              />
+              <span className="block mt-2 text-blue-900">Gmail</span>
+            </a>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
+            <a
+              href="https://outlook.live.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block w-full"
+            >
+              <img
+                src={outlook1}
+                alt="Outlook"
+                className="h-12 w-12 md:h-16 md:w-16 mx-auto hover:opacity-80 transition-opacity"
+              />
+              <span className="block mt-2 text-blue-900">Outlook</span>
+            </a>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
+            <a
               href="https://chatgpt.com"
               target="_blank"
               rel="noopener noreferrer"
@@ -353,6 +389,7 @@ const MainContent = () => {
 
 const MainPage = () => {
   const navigate = useNavigate();
+
   useEffect(() => {
     const username = localStorage.getItem("username");
     if (!username || username !== "Khetam") {
