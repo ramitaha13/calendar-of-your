@@ -10,6 +10,7 @@ import {
   MapPin,
   Briefcase,
   Settings,
+  Globe2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import chatgpt1 from "/src/assets/2.JPG";
@@ -38,11 +39,13 @@ const translations = {
     addPhones: "اضافة ارقام هواتف",
     addEmail: "اضافة Email",
     addAddress: "إضافة عنوان",
+    addWebsite: "إضافة موقع",
     contactUs: "تواصل معنا للمساعدة",
     husband: "زوجك",
     son: "ابنك",
     chatGPTDescription: "آلة تقوم بكل شيء من أجلك وتجعل حياتك سهلة",
     geminiDescription: "ذكاء اصطناعي متقدم يساعدك في جميع المهام",
+    importantWebsites: "مواقع مهمة",
   },
   he: {
     settings: "הגדרות",
@@ -64,14 +67,17 @@ const translations = {
     addPhones: "הוסף מספרי טלפון",
     addEmail: "הוסף אימייל",
     addAddress: "הוסף כתובת",
+    addWebsite: "הוסף אתר",
     contactUs: "צור קשר לעזרה",
     husband: "בעלך",
     son: "בנך",
     chatGPTDescription: "מכונה שעושה הכל בשבילך והופכת את חייך לקלים",
     geminiDescription: "בינה מלאכותית מתקדמת שעוזרת לך בכל המשימות",
+    importantWebsites: "אתרים חשובים",
   },
 };
 
+// Rest of the LanguageProvider component remains the same
 const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("he");
 
@@ -88,6 +94,7 @@ const LanguageProvider = ({ children }) => {
   );
 };
 
+// Header component remains the same
 const Header = () => {
   const navigate = useNavigate();
   const { language, toggleLanguage, translations } =
@@ -204,8 +211,14 @@ const MainContent = () => {
           title={translations.settings}
           onClick={() => navigate("/settings")}
         />
+        <NavigationCard
+          icon={Globe2}
+          title={translations.importantWebsites}
+          onClick={() => navigate("/websites")}
+        />
       </div>
 
+      {/* Rest of MainContent component remains the same */}
       <div className="grid grid-cols-1 gap-6 md:gap-12">
         <div className="bg-white rounded-xl p-4 md:p-8">
           <h2 className="text-lg md:text-xl font-bold text-blue-900 mb-4 md:mb-6 text-right">
@@ -253,6 +266,13 @@ const MainContent = () => {
             >
               <span>▶</span>
               <span>{translations.addTasks}</span>
+            </button>
+            <button
+              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+              onClick={() => navigate("/addwebsite")}
+            >
+              <span>▶</span>
+              <span>{translations.addWebsite}</span>
             </button>
           </div>
         </div>

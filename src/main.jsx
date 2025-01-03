@@ -21,6 +21,8 @@ import Pastdates from "../src/components/pastdates.jsx";
 import Tasks from "../src/components/Tasks.jsx";
 import AddTasks from "../src/components/addTasks.jsx";
 import Settings from "../src/components/settings.jsx";
+import Websites from "../src/components/websites.jsx";
+import Addwebsite from "../src/components/addwebsite.jsx";
 
 const router = createBrowserRouter([
   {
@@ -98,6 +100,14 @@ const router = createBrowserRouter([
   {
     path: "/settings",
     element: <Settings />,
+  },
+  {
+    path: "/websites",
+    element: <Websites />,
+  },
+  {
+    path: "/addwebsite",
+    element: <Addwebsite />,
   },
 ]);
 
