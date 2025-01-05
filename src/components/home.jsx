@@ -9,7 +9,7 @@ const Alert = ({ children }) => (
   </div>
 );
 
-const ElectionDay = () => {
+const HomePage = () => {
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState("");
   const [showShareAlert, setShowShareAlert] = useState(false);
@@ -192,4 +192,4 @@ const ElectionDay = () => {
   );
 };
 
-export default ElectionDay;
+export default HomePage;
