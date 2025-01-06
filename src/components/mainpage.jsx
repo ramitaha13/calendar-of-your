@@ -101,10 +101,10 @@ const LanguageProvider = ({ children }) => {
   );
 };
 
-const SidebarLink = ({ icon: Icon, title, onClick }) => (
+const SidebarLink = ({ icon: Icon, title, onClick, className = "" }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-3 p-3 w-full text-gray-100 hover:bg-white/10 rounded-lg transition-colors"
+    className={`flex items-center gap-3 p-3 w-full hover:bg-white/10 rounded-lg transition-colors ${className}`}
   >
     <Icon className="h-5 w-5" />
     <span>{title}</span>
@@ -160,6 +160,11 @@ const Sidebar = ({ isMobile, onClose }) => {
     useContext(LanguageContext);
   const sidebarRef = useRef(null);
 
+  const handleLogout = () => {
+    localStorage.removeItem("username");
+    navigate("/");
+  };
+
   useEffect(() => {
     if (isMobile) {
       const handleClickOutside = (event) => {
@@ -181,61 +186,79 @@ const Sidebar = ({ isMobile, onClose }) => {
           icon={Building2}
           title={translations.notes}
           onClick={() => navigate("/notes")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Calendar}
           title={translations.importantDates}
           onClick={() => navigate("/importantdates")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Calendar}
           title={translations.todayDates}
           onClick={() => navigate("/nowdate")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Calendar}
           title={translations.expiredDates}
           onClick={() => navigate("/pastdates")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={User}
           title={translations.phoneNumbers}
           onClick={() => navigate("/numbers")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Mail}
           title={translations.importantEmails}
           onClick={() => navigate("/emailimportant")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={FileText}
           title={translations.writeDoc}
           onClick={() => navigate("/writedoce")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={MapPin}
           title={translations.addresses}
           onClick={() => navigate("/address")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Briefcase}
           title={translations.tasks}
           onClick={() => navigate("/Tasks")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Globe2}
           title={translations.importantWebsites}
           onClick={() => navigate("/websites")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Settings}
           title={translations.settings}
           onClick={() => navigate("/settings")}
+          className="text-gray-100"
         />
         <SidebarLink
           icon={Globe}
           title={language === "he" ? "العربية" : "עברית"}
           onClick={toggleLanguage}
+          className="text-gray-100"
+        />
+        <SidebarLink
+          icon={LogOut}
+          title={translations.logout}
+          onClick={handleLogout}
+          className="text-red-500 hover:text-red-400"
         />
       </div>
       {isMobile && (
@@ -261,35 +284,14 @@ const Sidebar = ({ isMobile, onClose }) => {
 };
 
 const Header = ({ onMenuClick }) => {
-  const navigate = useNavigate();
-  const { language, toggleLanguage, translations } =
-    useContext(LanguageContext);
+  const { translations } = useContext(LanguageContext);
 
   return (
     <header className="bg-white shadow-md py-4 px-6 sticky top-0 z-40">
       <div className="flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <button onClick={onMenuClick} className="lg:hidden">
-            <Menu className="h-6 w-6" />
-          </button>
-          <button
-            onClick={() => {
-              localStorage.removeItem("username");
-              navigate("/");
-            }}
-            className="flex items-center text-red-500 hover:text-red-700"
-          >
-            <LogOut className="h-5 w-5 ml-2" />
-            <span>{translations.logout}</span>
-          </button>
-          <button
-            onClick={toggleLanguage}
-            className="hidden lg:flex items-center text-blue-500 hover:text-blue-700"
-          >
-            <Globe className="h-5 w-5 ml-2" />
-            <span>{language === "he" ? "العربية" : "עברית"}</span>
-          </button>
-        </div>
+        <button onClick={onMenuClick} className="lg:hidden">
+          <Menu className="h-6 w-6" />
+        </button>
         <h1 className="text-2xl font-bold text-blue-900">
           {translations.title}
         </h1>
@@ -425,13 +427,10 @@ const MainPage = () => {
         )}
         <Sidebar />
         <div className="lg:mr-64">
-          <main className="min-h-screen pb-16">
+          <main className="min-h-screen">
             <MainContent />
           </main>
         </div>
-        <footer className="bg-amber-400 py-4 fixed bottom-0 w-full">
-          <div className="container mx-auto px-6"></div>
-        </footer>
       </div>
     </LanguageProvider>
   );
