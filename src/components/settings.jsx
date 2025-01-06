@@ -403,10 +403,7 @@ const ProfileImageUpload = () => {
                   <X className="h-5 w-5" />
                 </button>
               </div>
-              <p className="mb-6">
-                هل أنت متأكد من حذف الصورة الشخصية؟ هذا الإجراء لا يمكن التراجع
-                عنه.
-              </p>
+              <p className="mb-6">هل أنت متأكد من حذف الصورة الشخصية؟</p>
               <div className="flex justify-end space-x-2 space-x-reverse">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
