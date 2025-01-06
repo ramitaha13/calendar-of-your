@@ -23,7 +23,6 @@ import AddTasks from "../src/components/addTasks.jsx";
 import Settings from "../src/components/settings.jsx";
 import Websites from "../src/components/websites.jsx";
 import Addwebsite from "../src/components/addwebsite.jsx";
-import Imagebackground from "../src/components/imagebackground.jsx";
 
 const router = createBrowserRouter([
   {
@@ -109,10 +108,6 @@ const router = createBrowserRouter([
   {
     path: "/addwebsite",
     element: <Addwebsite />,
-  },
-  {
-    path: "/imagebackground",
-    element: <Imagebackground />,
   },
 ]);
 

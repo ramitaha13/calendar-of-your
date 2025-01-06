@@ -22,7 +22,6 @@ const HomePage = () => {
     day: "",
   });
 
-  // ... Firebase and time update logic remains the same ...
   useEffect(() => {
     const db = getDatabase();
 
@@ -131,7 +130,7 @@ const HomePage = () => {
         {/* Mobile-optimized Profile Hero Section */}
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6 sm:mb-8">
           <div
-            className="h-48 sm:h-56 relative"
+            className="h-72 sm:h-[28rem] relative"
             style={{
               backgroundImage: `url(${
                 backgroundImage || "/api/placeholder/800/300"
