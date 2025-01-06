@@ -1,4 +1,10 @@
-import React, { useEffect, createContext, useContext, useState } from "react";
+import React, {
+  useEffect,
+  createContext,
+  useContext,
+  useState,
+  useRef,
+} from "react";
 import {
   LogOut,
   Building2,
@@ -11,6 +17,9 @@ import {
   Briefcase,
   Settings,
   Globe2,
+  ChevronRight,
+  Menu,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import chatgpt1 from "/src/assets/2.JPG";
@@ -81,11 +90,8 @@ const translations = {
 
 const LanguageProvider = ({ children }) => {
   const [language, setLanguage] = useState("he");
-
-  const toggleLanguage = () => {
+  const toggleLanguage = () =>
     setLanguage((prev) => (prev === "ar" ? "he" : "ar"));
-  };
-
   return (
     <LanguageContext.Provider
       value={{ language, toggleLanguage, translations: translations[language] }}
@@ -95,58 +101,200 @@ const LanguageProvider = ({ children }) => {
   );
 };
 
-const Header = () => {
+const SidebarLink = ({ icon: Icon, title, onClick }) => (
+  <button
+    onClick={onClick}
+    className="flex items-center gap-3 p-3 w-full text-gray-100 hover:bg-white/10 rounded-lg transition-colors"
+  >
+    <Icon className="h-5 w-5" />
+    <span>{title}</span>
+  </button>
+);
+
+const QuickActionCard = ({ title, onClick }) => (
+  <button
+    onClick={onClick}
+    className="flex items-center justify-between w-full p-4 bg-white/5 hover:bg-white/10 rounded-lg transition-colors text-white"
+  >
+    <ChevronRight className="h-5 w-5" />
+    <span>{title}</span>
+  </button>
+);
+
+const EmailServiceCard = ({ icon, title, link }) => (
+  <a
+    href={link}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-all flex flex-col items-center group"
+  >
+    <img
+      src={icon}
+      alt={title}
+      className="h-16 w-16 mb-3 transform group-hover:scale-110 transition-transform"
+    />
+    <span className="text-lg font-semibold text-blue-900">{title}</span>
+  </a>
+);
+
+const AIServiceCard = ({ icon, title, description, link }) => (
+  <a
+    href={link}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl p-6 shadow-lg hover:shadow-xl transition-all flex flex-col items-center group"
+  >
+    <img
+      src={icon}
+      alt={title}
+      className="h-20 w-20 mb-4 transform group-hover:scale-110 transition-transform"
+    />
+    <h3 className="text-xl font-bold text-white mb-2">{title}</h3>
+    <p className="text-blue-100 text-center">{description}</p>
+  </a>
+);
+
+const Sidebar = ({ isMobile, onClose }) => {
+  const navigate = useNavigate();
+  const { language, toggleLanguage, translations } =
+    useContext(LanguageContext);
+  const sidebarRef = useRef(null);
+
+  useEffect(() => {
+    if (isMobile) {
+      const handleClickOutside = (event) => {
+        if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+          onClose();
+        }
+      };
+
+      document.addEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [isMobile, onClose]);
+
+  const sidebarContent = (
+    <>
+      <div className="space-y-2">
+        <SidebarLink
+          icon={Building2}
+          title={translations.notes}
+          onClick={() => navigate("/notes")}
+        />
+        <SidebarLink
+          icon={Calendar}
+          title={translations.importantDates}
+          onClick={() => navigate("/importantdates")}
+        />
+        <SidebarLink
+          icon={Calendar}
+          title={translations.todayDates}
+          onClick={() => navigate("/nowdate")}
+        />
+        <SidebarLink
+          icon={Calendar}
+          title={translations.expiredDates}
+          onClick={() => navigate("/pastdates")}
+        />
+        <SidebarLink
+          icon={User}
+          title={translations.phoneNumbers}
+          onClick={() => navigate("/numbers")}
+        />
+        <SidebarLink
+          icon={Mail}
+          title={translations.importantEmails}
+          onClick={() => navigate("/emailimportant")}
+        />
+        <SidebarLink
+          icon={FileText}
+          title={translations.writeDoc}
+          onClick={() => navigate("/writedoce")}
+        />
+        <SidebarLink
+          icon={MapPin}
+          title={translations.addresses}
+          onClick={() => navigate("/address")}
+        />
+        <SidebarLink
+          icon={Briefcase}
+          title={translations.tasks}
+          onClick={() => navigate("/Tasks")}
+        />
+        <SidebarLink
+          icon={Globe2}
+          title={translations.importantWebsites}
+          onClick={() => navigate("/websites")}
+        />
+        <SidebarLink
+          icon={Settings}
+          title={translations.settings}
+          onClick={() => navigate("/settings")}
+        />
+        <SidebarLink
+          icon={Globe}
+          title={language === "he" ? "العربية" : "עברית"}
+          onClick={toggleLanguage}
+        />
+      </div>
+      {isMobile && (
+        <button onClick={onClose} className="absolute top-4 left-4 text-white">
+          <X className="h-6 w-6" />
+        </button>
+      )}
+    </>
+  );
+
+  return isMobile ? (
+    <div
+      ref={sidebarRef}
+      className="fixed inset-y-0 right-0 w-64 bg-blue-900 z-50 p-6 shadow-xl"
+    >
+      {sidebarContent}
+    </div>
+  ) : (
+    <div className="hidden lg:block w-64 bg-blue-900 p-6 fixed h-full">
+      {sidebarContent}
+    </div>
+  );
+};
+
+const Header = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { language, toggleLanguage, translations } =
     useContext(LanguageContext);
 
   return (
-    <header className="bg-white shadow-md py-4 px-4 md:px-6">
-      <div className="container mx-auto">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => {
-                localStorage.removeItem("username");
-                navigate("/");
-              }}
-              className="flex items-center text-red-500 hover:text-red-700 transition-colors duration-200"
-            >
-              <LogOut className="h-6 w-6" />
-              <span className="mr-2">{translations.logout}</span>
-            </button>
-
-            <button
-              onClick={toggleLanguage}
-              className="flex items-center text-blue-500 hover:text-blue-700 transition-colors duration-200"
-            >
-              <Globe className="h-6 w-6" />
-              <span className="mr-2">
-                {language === "he" ? "العربية" : "עברית"}
-              </span>
-            </button>
-          </div>
-
-          <h1 className="text-2xl font-bold text-blue-900">
-            {translations.title}
-          </h1>
+    <header className="bg-white shadow-md py-4 px-6 sticky top-0 z-40">
+      <div className="flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <button onClick={onMenuClick} className="lg:hidden">
+            <Menu className="h-6 w-6" />
+          </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem("username");
+              navigate("/");
+            }}
+            className="flex items-center text-red-500 hover:text-red-700"
+          >
+            <LogOut className="h-5 w-5 ml-2" />
+            <span>{translations.logout}</span>
+          </button>
+          <button
+            onClick={toggleLanguage}
+            className="hidden lg:flex items-center text-blue-500 hover:text-blue-700"
+          >
+            <Globe className="h-5 w-5 ml-2" />
+            <span>{language === "he" ? "العربية" : "עברית"}</span>
+          </button>
         </div>
+        <h1 className="text-2xl font-bold text-blue-900">
+          {translations.title}
+        </h1>
       </div>
     </header>
-  );
-};
-
-const NavigationCard = ({ icon: Icon, title, onClick }) => {
-  return (
-    <div
-      className="flex flex-col items-center justify-center bg-white/10 backdrop-blur-sm p-4 md:p-6 rounded-lg hover:bg-white/20 transition-all duration-300 cursor-pointer"
-      onClick={onClick}
-    >
-      <Icon className="h-8 w-8 md:h-12 md:w-12 text-white mb-2 md:mb-3" />
-      <span className="text-white text-sm md:text-lg font-medium text-center">
-        {title}
-      </span>
-    </div>
   );
 };
 
@@ -155,231 +303,101 @@ const MainContent = () => {
   const { translations } = useContext(LanguageContext);
 
   return (
-    <div className="container mx-auto px-4 md:px-6 py-6 md:py-12">
-      <h1 className="text-xl font-bold text-white mb-6 text-center md:hidden">
-        {translations.title}
-      </h1>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-8 mb-6 md:mb-12">
-        <NavigationCard
-          icon={Building2}
-          title={translations.notes}
-          onClick={() => navigate("/notes")}
-        />
-        <NavigationCard
-          icon={Calendar}
-          title={translations.importantDates}
-          onClick={() => navigate("/importantdates")}
-        />
-        <NavigationCard
-          icon={Calendar}
-          title={translations.todayDates}
-          onClick={() => navigate("/nowdate")}
-        />
-        <NavigationCard
-          icon={Calendar}
-          title={translations.expiredDates}
-          onClick={() => navigate("/pastdates")}
-        />
-        <NavigationCard
-          icon={User}
-          title={translations.phoneNumbers}
-          onClick={() => navigate("/numbers")}
-        />
-        <NavigationCard
-          icon={Mail}
-          title={translations.importantEmails}
-          onClick={() => navigate("/emailimportant")}
-        />
-        <NavigationCard
-          icon={FileText}
-          title={translations.writeDoc}
-          onClick={() => navigate("/writedoce")}
-        />
-        <NavigationCard
-          icon={MapPin}
-          title={translations.addresses}
-          onClick={() => navigate("/address")}
-        />
-        <NavigationCard
-          icon={Briefcase}
-          title={translations.tasks}
-          onClick={() => navigate("/Tasks")}
-        />
-        <NavigationCard
-          icon={Globe2}
-          title={translations.importantWebsites}
-          onClick={() => navigate("/websites")}
-        />
-        <NavigationCard
-          icon={Settings}
-          title={translations.settings}
-          onClick={() => navigate("/settings")}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 md:gap-12">
-        <div className="bg-white rounded-xl p-4 md:p-8">
-          <h2 className="text-lg md:text-xl font-bold text-blue-900 mb-4 md:mb-6 text-right">
+    <div className="p-6 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="bg-gradient-to-br from-blue-800 to-blue-900 rounded-xl p-6 shadow-lg">
+          <h2 className="text-xl font-bold text-white mb-6">
             {translations.linksAndDirections}
           </h2>
-          <div className="space-y-3 md:space-y-4">
-            <button
-              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+          <div className="space-y-3">
+            <QuickActionCard
+              title={translations.addNotes}
               onClick={() => navigate("/addnote")}
-            >
-              <span>▶</span>
-              <span>{translations.addNotes}</span>
-            </button>
-            <button
-              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+            />
+            <QuickActionCard
+              title={translations.addDates}
               onClick={() => navigate("/adddate")}
-            >
-              <span>▶</span>
-              <span>{translations.addDates}</span>
-            </button>
-            <button
-              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+            />
+            <QuickActionCard
+              title={translations.addPhones}
               onClick={() => navigate("/addnumbers")}
-            >
-              <span>▶</span>
-              <span>{translations.addPhones}</span>
-            </button>
-            <button
-              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+            />
+            <QuickActionCard
+              title={translations.addEmail}
               onClick={() => navigate("/addemail")}
-            >
-              <span>▶</span>
-              <span>{translations.addEmail}</span>
-            </button>
-            <button
-              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+            />
+            <QuickActionCard
+              title={translations.addAddress}
               onClick={() => navigate("/addaddress")}
-            >
-              <span>▶</span>
-              <span>{translations.addAddress}</span>
-            </button>
-            <button
-              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+            />
+            <QuickActionCard
+              title={translations.addTasks}
               onClick={() => navigate("/addTasks")}
-            >
-              <span>▶</span>
-              <span>{translations.addTasks}</span>
-            </button>
-            <button
-              className="flex items-center justify-between w-full text-right p-2 md:p-3 hover:bg-gray-50 rounded-lg transition-colors text-sm md:text-base"
+            />
+            <QuickActionCard
+              title={translations.addWebsite}
               onClick={() => navigate("/addwebsite")}
-            >
-              <span>▶</span>
-              <span>{translations.addWebsite}</span>
-            </button>
+            />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
-            <a
-              href="https://mail.google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full"
-            >
-              <img
-                src={gmail1}
-                alt="Gmail"
-                className="h-12 w-12 md:h-16 md:w-16 mx-auto hover:opacity-80 transition-opacity"
-              />
-              <span className="block mt-2 text-blue-900">Gmail</span>
-            </a>
+        <div className="space-y-8">
+          <div className="grid grid-cols-2 gap-6">
+            <EmailServiceCard
+              icon={gmail1}
+              title="Gmail"
+              link="https://mail.google.com"
+            />
+            <EmailServiceCard
+              icon={outlook1}
+              title="Outlook"
+              link="https://outlook.live.com"
+            />
           </div>
 
-          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
-            <a
-              href="https://outlook.live.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full"
-            >
-              <img
-                src={outlook1}
-                alt="Outlook"
-                className="h-12 w-12 md:h-16 md:w-16 mx-auto hover:opacity-80 transition-opacity"
-              />
-              <span className="block mt-2 text-blue-900">Outlook</span>
-            </a>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <AIServiceCard
+              icon={chatgpt1}
+              title="ChatGPT"
+              description={translations.chatGPTDescription}
+              link="https://chatgpt.com"
+            />
+            <AIServiceCard
+              icon={Gemini1}
+              title="Gemini AI"
+              description={translations.geminiDescription}
+              link="https://gemini.google.com"
+            />
           </div>
         </div>
+      </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
+      <div className="bg-gradient-to-r from-blue-800 to-blue-600 rounded-xl p-8 shadow-lg">
+        <h2 className="text-2xl font-bold text-white mb-8 text-center">
+          {translations.contactUs}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-white/20 transition-all">
+            <p className="text-white text-lg font-medium mb-3">
+              {translations.husband}
+            </p>
             <a
-              href="https://chatgpt.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full"
+              href="tel:0543272208"
+              className="text-white text-2xl hover:text-amber-400"
             >
-              <img
-                src={chatgpt1}
-                alt="ChatGPT"
-                className="mx-auto hover:opacity-80 transition-opacity h-12 w-12 md:h-16 md:w-16"
-              />
-              <span className="block mt-2 text-blue-900">ChatGPT</span>
-              <p className="text-gray-600 mt-2 text-sm md:text-base">
-                {translations.chatGPTDescription}
-              </p>
+              0543272208
             </a>
           </div>
-
-          <div className="bg-white rounded-xl p-6 md:p-8 text-center">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-center hover:bg-white/20 transition-all">
+            <p className="text-white text-lg font-medium mb-3">
+              {translations.son}
+            </p>
             <a
-              href="https://gemini.google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-block w-full"
+              href="tel:0537333343"
+              className="text-white text-2xl hover:text-amber-400"
             >
-              <img
-                src={Gemini1}
-                alt="Gemini AI"
-                className="mx-auto hover:opacity-80 transition-opacity h-12 w-12 md:h-16 md:w-16"
-              />
-              <span className="block mt-2 text-blue-900">Gemini AI</span>
-              <p className="text-gray-600 mt-2 text-sm md:text-base">
-                {translations.geminiDescription}
-              </p>
+              0537333343
             </a>
-          </div>
-        </div>
-
-        <div className="bg-gradient-to-r from-blue-800 to-cyan-600 rounded-xl p-6 md:p-8 shadow-lg">
-          <div className="text-center">
-            <h2 className="text-xl md:text-2xl font-bold text-white mb-6">
-              {translations.contactUs}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-all duration-300">
-                <p className="text-white text-lg font-medium mb-2">
-                  {translations.husband}
-                </p>
-                <a
-                  href="tel:0543272208"
-                  className="text-white text-xl hover:text-amber-400 transition-colors duration-200 flex justify-center items-center gap-2"
-                >
-                  0543272208
-                </a>
-              </div>
-
-              <div className="bg-white/10 backdrop-blur-sm rounded-lg p-6 hover:bg-white/20 transition-all duration-300">
-                <p className="text-white text-lg font-medium mb-2">
-                  {translations.son}
-                </p>
-                <a
-                  href="tel:0537333343"
-                  className="text-white text-xl hover:text-amber-400 transition-colors duration-200 flex justify-center items-center gap-2"
-                >
-                  0537333343
-                </a>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -389,6 +407,7 @@ const MainContent = () => {
 
 const MainPage = () => {
   const navigate = useNavigate();
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   useEffect(() => {
     const username = localStorage.getItem("username");
@@ -399,17 +418,32 @@ const MainPage = () => {
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen" dir="rtl">
-        <Header />
-        <main className="min-h-screen bg-gradient-to-br from-cyan-600 via-blue-800 to-cyan-600">
-          <MainContent />
-        </main>
-        <footer className="bg-amber-400 py-3 md:py-4 fixed bottom-0 w-full">
-          <div className="container mx-auto px-4 md:px-6 flex justify-between items-center"></div>
+      <div className="min-h-screen bg-gray-100" dir="rtl">
+        <Header onMenuClick={() => setShowMobileSidebar(true)} />
+        {showMobileSidebar && (
+          <Sidebar isMobile onClose={() => setShowMobileSidebar(false)} />
+        )}
+        <Sidebar />
+        <div className="lg:mr-64">
+          <main className="min-h-screen pb-16">
+            <MainContent />
+          </main>
+        </div>
+        <footer className="bg-amber-400 py-4 fixed bottom-0 w-full">
+          <div className="container mx-auto px-6"></div>
         </footer>
       </div>
     </LanguageProvider>
   );
+};
+
+// Export the MainContext to be used in other components if needed
+export const useMainContext = () => {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error("useMainContext must be used within a LanguageProvider");
+  }
+  return context;
 };
 
 export default MainPage;
