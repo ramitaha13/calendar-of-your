@@ -3,6 +3,7 @@ import { LogOut, ArrowRight, Lock, Eye, EyeOff, Upload } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getDatabase, ref, update, get } from "firebase/database";
 import axios from "axios";
+import BackgroundImageUpload from "/src/components/imagebackground";
 
 // Header Component
 const Header = () => {
@@ -121,7 +122,6 @@ const PasswordChangeForm = () => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Password fields */}
         <div className="relative">
           <label
             htmlFor="currentPassword"
@@ -295,7 +295,7 @@ const ProfileImageUpload = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl p-4 md:p-8 max-w-2xl mx-auto">
+    <div className="bg-white rounded-xl p-4 md:p-8 max-w-2xl mx-auto mb-12">
       <h2 className="text-xl md:text-2xl font-bold text-blue-900 mb-6 text-right">
         تحميل صورة الملف الشخصي
       </h2>
@@ -380,6 +380,7 @@ const SettingsPage = () => {
         <div className="container mx-auto px-4 md:px-6 py-6 md:py-12">
           <PasswordChangeForm />
           <ProfileImageUpload />
+          <BackgroundImageUpload />
         </div>
       </main>
       <footer className="bg-amber-400 py-3 md:py-4 fixed bottom-0 w-full">

@@ -12,6 +12,7 @@ const Alert = ({ children }) => (
 const HomePage = () => {
   const navigate = useNavigate();
   const [profileImage, setProfileImage] = useState("");
+  const [backgroundImage, setBackgroundImage] = useState("");
   const [showShareAlert, setShowShareAlert] = useState(false);
   const [currentTime, setCurrentTime] = useState({
     hours: 0,
@@ -21,13 +22,23 @@ const HomePage = () => {
     day: "",
   });
 
+  // ... Firebase and time update logic remains the same ...
   useEffect(() => {
     const db = getDatabase();
+
     const profileRef = ref(db, "profile/imageURL");
-    const unsubscribe = onValue(profileRef, (snapshot) => {
+    const profileUnsubscribe = onValue(profileRef, (snapshot) => {
       const imageURL = snapshot.val();
       if (imageURL) {
         setProfileImage(imageURL);
+      }
+    });
+
+    const backgroundRef = ref(db, "background/imageURL");
+    const backgroundUnsubscribe = onValue(backgroundRef, (snapshot) => {
+      const imageURL = snapshot.val();
+      if (imageURL) {
+        setBackgroundImage(imageURL);
       }
     });
 
@@ -62,7 +73,8 @@ const HomePage = () => {
 
     return () => {
       clearInterval(timer);
-      unsubscribe();
+      profileUnsubscribe();
+      backgroundUnsubscribe();
     };
   }, []);
 
@@ -86,14 +98,14 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Modern Navbar */}
+      {/* Mobile-optimized Navbar */}
       <nav className="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-white/80">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between h-16">
-            <div className="text-2xl font-bold text-blue-600">
+        <div className="container mx-auto px-4 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:h-16 gap-4 sm:gap-0">
+            <div className="text-xl sm:text-2xl font-bold text-blue-600 text-center sm:text-right">
               مكتب السكرتارية
             </div>
-            <div className="flex gap-3">
+            <div className="flex justify-center sm:justify-end gap-3">
               <button
                 onClick={handleShare}
                 className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-all duration-300 flex items-center gap-2"
@@ -115,12 +127,21 @@ const HomePage = () => {
 
       {showShareAlert && <Alert>تم نسخ الرابط بنجاح</Alert>}
 
-      <main className="container mx-auto px-6 py-8">
-        {/* Profile Hero Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-8">
-          <div className="h-56 bg-gradient-to-r from-blue-500 to-blue-600 relative">
-            <div className="absolute -bottom-28 right-8 flex items-end">
-              <div className="w-56 h-56 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        {/* Mobile-optimized Profile Hero Section */}
+        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6 sm:mb-8">
+          <div
+            className="h-48 sm:h-56 relative"
+            style={{
+              backgroundImage: `url(${
+                backgroundImage || "/api/placeholder/800/300"
+              })`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
+            <div className="absolute -bottom-20 sm:-bottom-28 right-1/2 sm:right-8 transform translate-x-1/2 sm:translate-x-0 flex items-end">
+              <div className="w-40 h-40 sm:w-56 sm:h-56 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
                 <img
                   src={profileImage || "/api/placeholder/200/200"}
                   alt="ختام طه"
@@ -130,9 +151,9 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="pt-32 px-8 pb-8">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
+          <div className="pt-24 sm:pt-32 px-4 sm:px-8 pb-6 sm:pb-8">
+            <div className="flex flex-col items-center sm:items-start gap-4">
+              <div className="text-center sm:text-right">
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   ختام طه
                 </h1>
@@ -149,20 +170,20 @@ const HomePage = () => {
           </div>
         </div>
 
-        {/* Time Display Section */}
-        <div className="bg-white rounded-2xl shadow-sm p-8">
-          <div className="flex items-center justify-center gap-3 mb-8">
+        {/* Mobile-optimized Time Display Section */}
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-8">
+          <div className="flex items-center justify-center gap-3 mb-6 sm:mb-8">
             <Clock3 className="w-6 h-6 text-blue-600" />
             <h2 className="text-xl font-bold text-gray-800">الوقت الحالي</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
             {/* Day Card */}
-            <div className="bg-gray-50 rounded-xl p-6 text-center">
-              <div className="text-lg font-medium text-gray-500 mb-2">
+            <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-center">
+              <div className="text-base sm:text-lg font-medium text-gray-500 mb-2">
                 اليوم
               </div>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-xl sm:text-2xl font-bold text-blue-600">
                 {currentTime.day}
               </div>
             </div>
@@ -175,12 +196,12 @@ const HomePage = () => {
             ].map((time, index) => (
               <div
                 key={index}
-                className="bg-gray-50 rounded-xl p-6 text-center transform hover:scale-105 transition-transform duration-300"
+                className="bg-gray-50 rounded-xl p-4 sm:p-6 text-center transform hover:scale-105 transition-transform duration-300"
               >
-                <div className="text-lg font-medium text-gray-500 mb-2">
+                <div className="text-base sm:text-lg font-medium text-gray-500 mb-2">
                   {time.label}
                 </div>
-                <div className="text-3xl font-bold text-blue-600">
+                <div className="text-xl sm:text-3xl font-bold text-blue-600">
                   {String(time.value).padStart(2, "0")}
                 </div>
               </div>
