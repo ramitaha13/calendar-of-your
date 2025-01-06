@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getDatabase, ref, onValue, remove } from "firebase/database";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ArrowRight, Trash2, Download } from "lucide-react";
+import { LogOut, ArrowRight, Trash2, Download, Image } from "lucide-react";
 import * as XLSX from "xlsx";
 
 const Header = () => {
@@ -50,6 +50,7 @@ const TodayDatesPage = () => {
     title: "",
     content: "",
   });
+  const tableRef = useRef(null);
 
   const getDayName = (dateString) => {
     const date = new Date(dateString);
@@ -88,7 +89,7 @@ const TodayDatesPage = () => {
                 .map(([key, value]) => ({
                   id: key,
                   ...value,
-                  day: value.day || getDayName(value.date), // Add day if not present
+                  day: value.day || getDayName(value.date),
                 }))
                 .filter((date) => isSameDay(new Date(date.date), today));
 
@@ -138,6 +139,31 @@ const TodayDatesPage = () => {
     XLSX.utils.book_append_sheet(wb, ws, "مواعيد اليوم");
 
     XLSX.writeFile(wb, "مواعيد_اليوم.xlsx");
+  };
+
+  const handleExportToImage = async () => {
+    if (!tableRef.current) return;
+
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const canvas = await html2canvas(tableRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+
+      const image = canvas.toDataURL("image/png", 1.0);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = image;
+      downloadLink.download = "مواعيد_اليوم.png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } catch (err) {
+      console.error("Error exporting to image:", err);
+      alert("حدث خطأ أثناء تصدير الصورة");
+    }
   };
 
   const handleDelete = async (dateId) => {
@@ -228,13 +254,22 @@ const TodayDatesPage = () => {
       <div className="bg-white rounded-lg shadow-lg overflow-x-auto">
         <div className="p-4">
           <div className="flex justify-between items-center mb-4">
-            <button
-              onClick={handleExportToExcel}
-              className="flex items-center bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
-            >
-              <Download className="h-5 w-5 ml-2" />
-              تصدير إلى Excel
-            </button>
+            <div className="flex space-x-4">
+              <button
+                onClick={handleExportToExcel}
+                className="flex items-center bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200 ml-4"
+              >
+                <Download className="h-5 w-5 ml-2" />
+                تصدير إلى Excel
+              </button>
+              <button
+                onClick={handleExportToImage}
+                className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
+              >
+                <Image className="h-5 w-5 ml-2" />
+                تصدير كصورة
+              </button>
+            </div>
             <div className="text-gray-600">
               عدد المواعيد: {filteredDates.length}
             </div>
@@ -270,55 +305,57 @@ const TodayDatesPage = () => {
             />
           </div>
         </div>
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                التاريخ
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                اليوم
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                العنوان
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                المحتوى
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                حذف
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredDates.map((date) => (
-              <tr key={date.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  {formatDate(date.date)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  {date.day || getDayName(date.date)}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="text-sm font-medium text-gray-900">
-                    {date.title}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="text-sm text-gray-500">{date.content}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button
-                    onClick={() => handleDelete(date.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </td>
+        <div ref={tableRef}>
+          <table className="min-w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  التاريخ
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  اليوم
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  العنوان
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  المحتوى
+                </th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  حذف
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {filteredDates.map((date) => (
+                <tr key={date.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {formatDate(date.date)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    {date.day || getDayName(date.date)}
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="text-sm font-medium text-gray-900">
+                      {date.title}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <div className="text-sm text-gray-500">{date.content}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right">
+                    <button
+                      onClick={() => handleDelete(date.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     );
   };
@@ -337,7 +374,9 @@ const TodayDatesPage = () => {
         </div>
       </main>
       <footer className="bg-amber-400 py-3 md:py-4 fixed bottom-0 w-full">
-        <div className="container mx-auto px-4 md:px-6 flex justify-between items-center"></div>
+        <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
+          {/* Footer content if needed */}
+        </div>
       </footer>
     </div>
   );
