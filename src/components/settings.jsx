@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { LogOut, ArrowRight, Lock, Eye, EyeOff, Upload } from "lucide-react";
+import {
+  LogOut,
+  ArrowRight,
+  Lock,
+  Eye,
+  EyeOff,
+  Upload,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getDatabase, ref, update, get } from "firebase/database";
+import { getDatabase, ref, update, get, remove } from "firebase/database";
 import axios from "axios";
 import BackgroundImageUpload from "/src/components/imagebackground";
 
@@ -232,9 +241,30 @@ const ProfileImageUpload = () => {
   const [file, setFile] = useState(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [imagePreview, setImagePreview] = useState(null);
+  const [currentImage, setCurrentImage] = useState(null);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const IMGBB_API_KEY = "09fbbc889aa75bba791fff0e456cc668";
+
+  useEffect(() => {
+    const fetchCurrentImage = async () => {
+      try {
+        const db = getDatabase();
+        const profileRef = ref(db, "profile");
+        const snapshot = await get(profileRef);
+
+        if (snapshot.exists() && snapshot.val().imageURL) {
+          setCurrentImage(snapshot.val().imageURL);
+        }
+      } catch (err) {
+        console.error("Error fetching current image:", err);
+        setError("حدث خطأ أثناء تحميل الصورة الحالية");
+      }
+    };
+
+    fetchCurrentImage();
+  }, []);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -250,6 +280,26 @@ const ProfileImageUpload = () => {
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(selectedFile);
+    }
+  };
+
+  const handleDeleteImage = async () => {
+    try {
+      const db = getDatabase();
+      const profileRef = ref(db, "profile/imageURL");
+      await remove(profileRef);
+
+      setCurrentImage(null);
+      setSuccess("تم حذف الصورة بنجاح");
+      setShowDeleteConfirm(false);
+
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
+    } catch (err) {
+      console.error("Error deleting image:", err);
+      setError("حدث خطأ أثناء حذف الصورة");
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -284,10 +334,15 @@ const ProfileImageUpload = () => {
         imageURL: imageUrl,
       });
 
+      setCurrentImage(imageUrl);
       setSuccess("تم رفع الصورة بنجاح");
       setUploadProgress(0);
       setFile(null);
       setImagePreview(null);
+
+      setTimeout(() => {
+        setSuccess(false);
+      }, 3000);
     } catch (err) {
       setError("حدث خطأ أثناء رفع الصورة");
       console.error("Upload error:", err);
@@ -313,7 +368,65 @@ const ProfileImageUpload = () => {
       )}
 
       <div className="flex flex-col items-end space-y-4">
-        {imagePreview && (
+        {/* Current Image Display */}
+        {currentImage && (
+          <div className="relative">
+            <div className="w-32 h-32 rounded-full overflow-hidden">
+              <img
+                src={currentImage}
+                alt="Current profile"
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <button
+              onClick={() => setShowDeleteConfirm(true)}
+              className="absolute top-0 right-0 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteConfirm && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            dir="rtl"
+          >
+            <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">تأكيد الحذف</h3>
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <p className="mb-6">
+                هل أنت متأكد من حذف الصورة الشخصية؟ هذا الإجراء لا يمكن التراجع
+                عنه.
+              </p>
+              <div className="flex justify-end space-x-2 space-x-reverse">
+                <button
+                  onClick={() => setShowDeleteConfirm(false)}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-700 font-medium"
+                >
+                  إلغاء
+                </button>
+                <button
+                  onClick={handleDeleteImage}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 font-medium"
+                >
+                  حذف
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Image Preview */}
+        {imagePreview && !currentImage && (
           <div className="w-32 h-32 rounded-full overflow-hidden">
             <img
               src={imagePreview}
