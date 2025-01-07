@@ -52,6 +52,7 @@ const TodayDatesPage = () => {
     content: "",
   });
   const tableRef = useRef(null);
+  const exportContainerRef = useRef(null);
 
   const getDayName = (dateString) => {
     const date = new Date(dateString);
@@ -142,18 +143,52 @@ const TodayDatesPage = () => {
     XLSX.writeFile(wb, "مواعيد_اليوم.xlsx");
   };
 
-  const handleExportToImage = async () => {
-    if (!tableRef.current) return;
+  const prepareForExport = () => {
+    if (tableRef.current) {
+      const containerDiv = document.createElement("div");
+      containerDiv.style.backgroundColor = "#ffffff";
+      containerDiv.style.padding = "20px";
+      containerDiv.style.width = "fit-content";
 
+      const tableCopy = tableRef.current.cloneNode(true);
+      tableCopy.style.width = "auto";
+      tableCopy.style.maxWidth = "none";
+      tableCopy.style.whiteSpace = "nowrap";
+
+      containerDiv.appendChild(tableCopy);
+      return containerDiv;
+    }
+    return null;
+  };
+
+  const handleExportToImage = async () => {
     try {
       setIsExporting(true);
       const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(tableRef.current, {
+
+      const exportElement = prepareForExport();
+      if (!exportElement) return;
+
+      document.body.appendChild(exportElement);
+
+      const canvas = await html2canvas(exportElement, {
         scale: 2,
         useCORS: true,
         logging: false,
+        width: exportElement.offsetWidth,
+        height: exportElement.offsetHeight,
+        windowWidth: exportElement.offsetWidth,
+        windowHeight: exportElement.offsetHeight,
         backgroundColor: "#ffffff",
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.body.lastChild;
+          clonedElement.style.width = "auto";
+          clonedElement.style.height = "auto";
+          clonedElement.style.position = "relative";
+        },
       });
+
+      document.body.removeChild(exportElement);
 
       const image = canvas.toDataURL("image/png", 1.0);
       const downloadLink = document.createElement("a");
@@ -255,7 +290,7 @@ const TodayDatesPage = () => {
     }
 
     return (
-      <div className="bg-white rounded-lg shadow-lg overflow-x-auto">
+      <div className="bg-white rounded-lg shadow-lg">
         <div className="p-4">
           <div className="flex justify-between items-center mb-4">
             <div className="flex space-x-4">
@@ -278,7 +313,7 @@ const TodayDatesPage = () => {
               عدد المواعيد: {filteredDates.length}
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input
               type="text"
               placeholder="بحث حسب التاريخ"
@@ -309,56 +344,60 @@ const TodayDatesPage = () => {
             />
           </div>
         </div>
-        <div ref={tableRef}>
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isExporting ? "Date" : "التاريخ"}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isExporting ? "Day" : "اليوم"}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isExporting ? "Title" : "العنوان"}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isExporting ? "Status" : "المحتوى"}
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {isExporting ? "Delete" : "حذف"}
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredDates.map((date) => (
-                <tr key={date.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    {formatDate(date.date)}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    {date.day || getDayName(date.date)}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="text-sm font-medium text-gray-900">
-                      {date.title}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="text-sm text-gray-500">{date.content}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right">
-                    <button
-                      onClick={() => handleDelete(date.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <Trash2 className="h-5 w-5" />
-                    </button>
-                  </td>
+        <div className="overflow-x-auto">
+          <div ref={tableRef} className="min-w-full">
+            <table className="min-w-full table-auto">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Date" : "التاريخ"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Day" : "اليوم"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Title" : "العنوان"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Status" : "المحتوى"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Delete" : "حذف"}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredDates.map((date) => (
+                  <tr key={date.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      {formatDate(date.date)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      {date.day || getDayName(date.date)}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-sm font-medium text-gray-900">
+                        {date.title}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-sm text-gray-500">
+                        {date.content}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        onClick={() => handleDelete(date.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
