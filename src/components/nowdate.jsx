@@ -44,6 +44,7 @@ const TodayDatesPage = () => {
   const [filteredDates, setFilteredDates] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isExporting, setIsExporting] = useState(false);
   const [filters, setFilters] = useState({
     date: "",
     day: "",
@@ -145,6 +146,7 @@ const TodayDatesPage = () => {
     if (!tableRef.current) return;
 
     try {
+      setIsExporting(true);
       const html2canvas = (await import("html2canvas")).default;
       const canvas = await html2canvas(tableRef.current, {
         scale: 2,
@@ -163,6 +165,8 @@ const TodayDatesPage = () => {
     } catch (err) {
       console.error("Error exporting to image:", err);
       alert("حدث خطأ أثناء تصدير الصورة");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -310,19 +314,19 @@ const TodayDatesPage = () => {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  التاريخ
+                  {isExporting ? "Date" : "التاريخ"}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  اليوم
+                  {isExporting ? "Day" : "اليوم"}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  العنوان
+                  {isExporting ? "Title" : "العنوان"}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  المحتوى
+                  {isExporting ? "Status" : "المحتوى"}
                 </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  حذف
+                  {isExporting ? "Delete" : "حذف"}
                 </th>
               </tr>
             </thead>
