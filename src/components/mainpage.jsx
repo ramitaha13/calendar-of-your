@@ -180,8 +180,8 @@ const Sidebar = ({ isMobile, onClose }) => {
   }, [isMobile, onClose]);
 
   const sidebarContent = (
-    <>
-      <div className="space-y-2">
+    <div className="flex flex-col h-full">
+      <div className="flex-grow space-y-2">
         <SidebarLink
           icon={Building2}
           title={translations.notes}
@@ -254,30 +254,37 @@ const Sidebar = ({ isMobile, onClose }) => {
           onClick={toggleLanguage}
           className="text-gray-100"
         />
-        <SidebarLink
-          icon={LogOut}
-          title={translations.logout}
-          onClick={handleLogout}
-          className="text-red-500 hover:text-red-400"
-        />
       </div>
+      {isMobile && (
+        <>
+          <div className="mt-4 pt-4 border-t border-white/20">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-3 p-3 w-full bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>{translations.logout}</span>
+            </button>
+          </div>
+        </>
+      )}
       {isMobile && (
         <button onClick={onClose} className="absolute top-4 left-4 text-white">
           <X className="h-6 w-6" />
         </button>
       )}
-    </>
+    </div>
   );
 
   return isMobile ? (
     <div
       ref={sidebarRef}
-      className="fixed inset-y-0 right-0 w-64 bg-blue-900 z-50 p-6 shadow-xl"
+      className="fixed inset-y-0 right-0 w-64 bg-blue-900 z-50 p-6 shadow-xl overflow-y-auto"
     >
       {sidebarContent}
     </div>
   ) : (
-    <div className="hidden lg:block w-64 bg-blue-900 p-6 fixed h-full">
+    <div className="hidden lg:block w-64 bg-blue-900 p-6 fixed h-full overflow-y-auto">
       {sidebarContent}
     </div>
   );
@@ -285,10 +292,25 @@ const Sidebar = ({ isMobile, onClose }) => {
 
 const Header = ({ onMenuClick }) => {
   const { translations } = useContext(LanguageContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("username");
+    navigate("/");
+  };
 
   return (
     <header className="bg-white shadow-md py-4 px-6 sticky top-0 z-40">
       <div className="flex justify-between items-center">
+        <div className="hidden lg:flex items-center gap-4">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 transition-colors"
+          >
+            <LogOut className="h-5 w-5" />
+            <span>{translations.logout}</span>
+          </button>
+        </div>
         <button onClick={onMenuClick} className="lg:hidden">
           <Menu className="h-6 w-6" />
         </button>
