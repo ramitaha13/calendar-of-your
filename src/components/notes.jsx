@@ -142,10 +142,7 @@ const NotesPage = () => {
         // Find notifications that match this note's title
         Object.entries(notifications).forEach(
           async ([notificationId, notification]) => {
-            if (
-              notification.message &&
-              notification.message.includes(noteTitle)
-            ) {
+            if (notification.note === noteTitle) {
               const notificationRef = ref(
                 db,
                 `notifications/${notificationId}`

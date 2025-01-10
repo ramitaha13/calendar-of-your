@@ -58,7 +58,7 @@ const AddNoteForm = () => {
         message: `تم إضافة ملاحظة جديدة بعنوان: ${noteTitle}`,
         timestamp: new Date().toISOString(),
         read: false,
-        import: noteTitle,
+        note: noteTitle,
       });
     } catch (error) {
       console.error("Error creating notification:", error);

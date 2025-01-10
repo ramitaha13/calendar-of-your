@@ -227,13 +227,10 @@ const TodayDatesPage = () => {
         if (notificationsSnapshot.exists()) {
           const notifications = notificationsSnapshot.val();
 
-          // Find notifications that match this date's title
+          // Find notifications that match this date's title in the import field
           Object.entries(notifications).forEach(
             async ([notificationId, notification]) => {
-              if (
-                notification.message &&
-                notification.message.includes(dateData.title)
-              ) {
+              if (notification.import === dateData.title) {
                 const notificationRef = ref(
                   db,
                   `notifications/${notificationId}`

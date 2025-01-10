@@ -59,6 +59,23 @@ const AddTaskPage = () => {
     }
   }, [navigate]);
 
+  const createNotification = async (taskTitle) => {
+    try {
+      const db = getDatabase();
+      const notificationsRef = ref(db, "notifications");
+
+      await push(notificationsRef, {
+        title: "إضافة مهمة جديدة",
+        message: `تم إضافة مهمة جديدة بعنوان: ${taskTitle}`,
+        timestamp: new Date().toISOString(),
+        read: false,
+        task: taskTitle,
+      });
+    } catch (error) {
+      console.error("Error creating notification:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -84,6 +101,9 @@ const AddTaskPage = () => {
         ...formData,
         date: formData.date,
       });
+
+      // Create notification for the new task
+      await createNotification(formData.title);
 
       setSuccessMessage("تمت إضافة المهمة بنجاح!");
 

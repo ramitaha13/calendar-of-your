@@ -134,6 +134,9 @@ const NotificationBell = () => {
 
         setNotifications(sortedNotifications);
         setUnreadCount(sortedNotifications.filter((n) => !n.read).length);
+      } else {
+        setNotifications([]);
+        setUnreadCount(0);
       }
     });
 
@@ -205,7 +208,7 @@ const NotificationBell = () => {
               {translations.notifications}
             </h3>
           </div>
-          {notifications.length === 0 ? (
+          {!notifications || notifications.length === 0 ? (
             <div className="p-6 text-center text-gray-500 text-base md:text-lg">
               {translations.noNotifications}
             </div>
@@ -246,59 +249,6 @@ const NotificationBell = () => {
         </div>
       )}
     </div>
-  );
-};
-
-const Header = ({ onMenuClick }) => {
-  const { translations } = useContext(LanguageContext);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    localStorage.removeItem("username");
-    navigate("/");
-  };
-
-  return (
-    <header className="bg-white shadow-md py-4 px-4 sticky top-0 z-40">
-      <div className="container mx-auto">
-        <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center">
-          {/* Mobile Menu & Logout */}
-          <div className="flex items-center justify-between md:hidden">
-            <button onClick={onMenuClick} className="p-2">
-              <Menu className="h-6 w-6" />
-            </button>
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-700 transition-colors"
-            >
-              <LogOut className="h-5 w-5" />
-              <span>{translations.logout}</span>
-            </button>
-          </div>
-
-          {/* Desktop Layout */}
-          <div className="hidden md:flex md:flex-1 md:justify-start">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 transition-colors"
-            >
-              <LogOut className="h-5 w-5" />
-              <span>{translations.logout}</span>
-            </button>
-          </div>
-
-          {/* Title - Centered */}
-          <div className="flex items-center justify-center">
-            <h1 className="text-xl md:text-2xl font-bold text-blue-900 text-center">
-              {translations.title}
-            </h1>
-          </div>
-
-          {/* Spacer for desktop layout */}
-          <div className="hidden md:block md:flex-1" />
-        </div>
-      </div>
-    </header>
   );
 };
 
@@ -359,6 +309,54 @@ const AIServiceCard = ({ icon, title, description, link }) => (
   </a>
 );
 
+const Header = ({ onMenuClick }) => {
+  const { translations } = useContext(LanguageContext);
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem("username");
+    navigate("/");
+  };
+
+  return (
+    <header className="bg-white shadow-md py-4 px-4 sticky top-0 z-40">
+      <div className="container mx-auto">
+        <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row md:items-center">
+          <div className="flex items-center justify-between md:hidden">
+            <button onClick={onMenuClick} className="p-2">
+              <Menu className="h-6 w-6" />
+            </button>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-3 py-2 text-red-600 hover:text-red-700 transition-colors"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>{translations.logout}</span>
+            </button>
+          </div>
+
+          <div className="hidden md:flex md:flex-1 md:justify-start">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-red-600 hover:text-red-700 transition-colors"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>{translations.logout}</span>
+            </button>
+          </div>
+          <div className="flex items-center justify-center">
+            <h1 className="text-xl md:text-2xl font-bold text-blue-900 text-center">
+              {translations.title}
+            </h1>
+          </div>
+
+          <div className="hidden md:block md:flex-1" />
+        </div>
+      </div>
+    </header>
+  );
+};
+
 const Sidebar = ({ isMobile, onClose }) => {
   const navigate = useNavigate();
   const { language, toggleLanguage, translations } =
@@ -378,11 +376,6 @@ const Sidebar = ({ isMobile, onClose }) => {
         document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isMobile, onClose]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("username");
-    navigate("/");
-  };
 
   const sidebarContent = (
     <div className="flex flex-col h-full">

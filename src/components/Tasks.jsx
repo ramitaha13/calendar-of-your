@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, onValue, remove, update } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  onValue,
+  remove,
+  update,
+  get,
+} from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { LogOut, ArrowRight, Trash2, Download } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -105,6 +112,46 @@ const TasksPage = () => {
     fetchTasks();
   }, [navigate]);
 
+  const handleDelete = async (taskId) => {
+    const task = tasks.find((t) => t.id === taskId);
+    if (!task) return;
+
+    const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذه المهمة؟");
+    if (!confirmed) return;
+
+    try {
+      const db = getDatabase();
+
+      // Delete the task
+      const taskRef = ref(db, `tasks/${taskId}`);
+      await remove(taskRef);
+
+      // Find and delete corresponding notification
+      const notificationsRef = ref(db, "notifications");
+      const notificationsSnapshot = await get(notificationsRef);
+
+      if (notificationsSnapshot.exists()) {
+        const notifications = notificationsSnapshot.val();
+
+        // Find notifications that match this task's title in the 'task' field
+        Object.entries(notifications).forEach(
+          async ([notificationId, notification]) => {
+            if (notification.task === task.title) {
+              const notificationRef = ref(
+                db,
+                `notifications/${notificationId}`
+              );
+              await remove(notificationRef);
+            }
+          }
+        );
+      }
+    } catch (err) {
+      setError("خطأ في حذف المهمة");
+      console.error("Error deleting task:", err);
+    }
+  };
+
   const handleExportToExcel = () => {
     const dataToExport = filteredTasks.map((task) => ({
       التاريخ: formatDate(task.date),
@@ -141,20 +188,6 @@ const TasksPage = () => {
     }
   };
 
-  const handleDelete = async (taskId) => {
-    const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذه المهمة؟");
-    if (!confirmed) return;
-
-    try {
-      const db = getDatabase();
-      const taskRef = ref(db, `tasks/${taskId}`);
-      await remove(taskRef);
-    } catch (err) {
-      setError("خطأ في حذف المهمة");
-      console.error("Error deleting task:", err);
-    }
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate();
@@ -182,12 +215,6 @@ const TasksPage = () => {
       filtered = filtered.filter((task) => task.status === newFilters.status);
     }
     setFilteredTasks(filtered);
-  };
-
-  const getStatusStyle = (status) => {
-    return status === "complete"
-      ? "bg-green-100 text-green-800"
-      : "bg-yellow-100 text-yellow-800";
   };
 
   const renderContent = () => {
