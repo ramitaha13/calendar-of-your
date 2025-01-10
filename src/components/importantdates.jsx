@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getDatabase, ref, onValue, remove } from "firebase/database";
+import { getDatabase, ref, onValue, remove, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { LogOut, ArrowRight, Trash2, Download, Image } from "lucide-react";
 import * as XLSX from "xlsx";
 
-// Header component remains the same
 const Header = () => {
   const navigate = useNavigate();
   return (
@@ -52,7 +51,6 @@ const ImportantDatesPage = () => {
   });
   const tableRef = useRef(null);
 
-  // Authentication check remains the same
   useEffect(() => {
     const checkAuth = () => {
       const username = localStorage.getItem("username");
@@ -148,7 +146,6 @@ const ImportantDatesPage = () => {
     }
   };
 
-  // Other utility functions remain the same
   const handleDelete = async (dateId) => {
     const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذا الموعد؟");
     if (!confirmed) return;
@@ -156,7 +153,39 @@ const ImportantDatesPage = () => {
     try {
       const db = getDatabase();
       const dateRef = ref(db, `dates/${dateId}`);
+
+      // Get the date details before deleting
+      const dateSnapshot = await get(dateRef);
+      const dateData = dateSnapshot.val();
+
+      // Delete the date
       await remove(dateRef);
+
+      // Find and delete corresponding notification
+      if (dateData) {
+        const notificationsRef = ref(db, "notifications");
+        const notificationsSnapshot = await get(notificationsRef);
+
+        if (notificationsSnapshot.exists()) {
+          const notifications = notificationsSnapshot.val();
+
+          // Find notifications that match this date's title
+          Object.entries(notifications).forEach(
+            async ([notificationId, notification]) => {
+              if (
+                notification.message &&
+                notification.message.includes(dateData.title)
+              ) {
+                const notificationRef = ref(
+                  db,
+                  `notifications/${notificationId}`
+                );
+                await remove(notificationRef);
+              }
+            }
+          );
+        }
+      }
     } catch (err) {
       setError("Error deleting date");
       console.error("Error deleting date:", err);
@@ -374,7 +403,7 @@ const ImportantDatesPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right">
                       {date.day || getDayName(date.date)}
                     </td>
-                    <td className="px-6 py-4text-right">
+                    <td className="px-6 py-4 text-right">
                       <div className="text-sm font-medium text-gray-900">
                         {date.title}
                       </div>

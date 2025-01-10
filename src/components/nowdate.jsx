@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getDatabase, ref, onValue, remove } from "firebase/database";
+import { getDatabase, ref, onValue, remove, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { LogOut, ArrowRight, Trash2, Download, Image } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -52,7 +52,6 @@ const TodayDatesPage = () => {
     content: "",
   });
   const tableRef = useRef(null);
-  const exportContainerRef = useRef(null);
 
   const getDayName = (dateString) => {
     const date = new Date(dateString);
@@ -212,7 +211,39 @@ const TodayDatesPage = () => {
     try {
       const db = getDatabase();
       const dateRef = ref(db, `dates/${dateId}`);
+
+      // Get the date details before deleting
+      const dateSnapshot = await get(dateRef);
+      const dateData = dateSnapshot.val();
+
+      // Delete the date
       await remove(dateRef);
+
+      // Find and delete corresponding notification
+      if (dateData) {
+        const notificationsRef = ref(db, "notifications");
+        const notificationsSnapshot = await get(notificationsRef);
+
+        if (notificationsSnapshot.exists()) {
+          const notifications = notificationsSnapshot.val();
+
+          // Find notifications that match this date's title
+          Object.entries(notifications).forEach(
+            async ([notificationId, notification]) => {
+              if (
+                notification.message &&
+                notification.message.includes(dateData.title)
+              ) {
+                const notificationRef = ref(
+                  db,
+                  `notifications/${notificationId}`
+                );
+                await remove(notificationRef);
+              }
+            }
+          );
+        }
+      }
     } catch (err) {
       setError("Error deleting date");
       console.error("Error deleting date:", err);

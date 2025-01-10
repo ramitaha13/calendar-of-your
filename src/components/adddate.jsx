@@ -50,10 +50,8 @@ const AddDateForm = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  // Get today's date in YYYY-MM-DD format for the min attribute
   const today = new Date().toISOString().split("T")[0];
 
-  // Update day when date changes
   useEffect(() => {
     if (date) {
       const selectedDate = new Date(date);
@@ -73,13 +71,29 @@ const AddDateForm = () => {
     }
   }, [date]);
 
+  const createNotification = async (dateTitle, dateValue) => {
+    try {
+      const db = getDatabase();
+      const notificationsRef = ref(db, "notifications");
+
+      await push(notificationsRef, {
+        title: "إضافة موعد جديد",
+        message: `تم إضافة موعد جديد بعنوان: ${dateTitle} في تاريخ ${dateValue}`,
+        timestamp: new Date().toISOString(),
+        read: false,
+        import: dateTitle,
+      });
+    } catch (error) {
+      console.error("Error creating notification:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     setSuccess(false);
 
-    // Additional validation to ensure date is not before today
     const selectedDate = new Date(date);
     const todayDate = new Date(today);
 
@@ -93,12 +107,16 @@ const AddDateForm = () => {
       const db = getDatabase();
       const datesRef = ref(db, "dates");
 
+      // Save the date
       await push(datesRef, {
         title,
         content,
         date,
         day,
       });
+
+      // Create a notification for the new date
+      await createNotification(title, date);
 
       setSuccess(true);
       setTitle("");
@@ -223,7 +241,6 @@ const AddDatePage = () => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // Authentication check
   useEffect(() => {
     const checkAuth = () => {
       const username = localStorage.getItem("username");

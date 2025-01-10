@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, onValue, remove } from "firebase/database";
+import { getDatabase, ref, onValue, remove, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { LogOut, ArrowRight, Trash2, Download } from "lucide-react";
 import * as XLSX from "xlsx";
@@ -84,13 +84,13 @@ const PastDatesPage = () => {
             const data = snapshot.val();
             if (data) {
               const today = new Date();
-              today.setHours(0, 0, 0, 0); // Set to start of day for accurate comparison
+              today.setHours(0, 0, 0, 0);
 
               const datesArray = Object.entries(data)
                 .map(([key, value]) => ({
                   id: key,
                   ...value,
-                  day: value.day || getDayName(value.date), // Add day if not present
+                  day: value.day || getDayName(value.date),
                 }))
                 .filter((date) => {
                   const dateObj = new Date(date.date);
@@ -99,7 +99,7 @@ const PastDatesPage = () => {
                 });
 
               const sortedDates = datesArray.sort(
-                (a, b) => new Date(b.date) - new Date(a.date) // Sort in descending order
+                (a, b) => new Date(b.date) - new Date(a.date)
               );
               setDates(sortedDates);
               setFilteredDates(sortedDates);
@@ -153,7 +153,39 @@ const PastDatesPage = () => {
     try {
       const db = getDatabase();
       const dateRef = ref(db, `dates/${dateId}`);
+
+      // Get the date details before deleting
+      const dateSnapshot = await get(dateRef);
+      const dateData = dateSnapshot.val();
+
+      // Delete the date
       await remove(dateRef);
+
+      // Find and delete corresponding notification
+      if (dateData) {
+        const notificationsRef = ref(db, "notifications");
+        const notificationsSnapshot = await get(notificationsRef);
+
+        if (notificationsSnapshot.exists()) {
+          const notifications = notificationsSnapshot.val();
+
+          // Find notifications that match this date's title
+          Object.entries(notifications).forEach(
+            async ([notificationId, notification]) => {
+              if (
+                notification.message &&
+                notification.message.includes(dateData.title)
+              ) {
+                const notificationRef = ref(
+                  db,
+                  `notifications/${notificationId}`
+                );
+                await remove(notificationRef);
+              }
+            }
+          );
+        }
+      }
     } catch (err) {
       setError("Error deleting date");
       console.error("Error deleting date:", err);
