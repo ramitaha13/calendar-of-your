@@ -179,11 +179,15 @@ const NotificationBell = () => {
     >
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 rounded-full hover:bg-gray-100 transition-colors duration-200"
+        className="relative p-2 rounded-full hover:bg-white/10 transition-colors duration-200"
       >
-        <Bell className="w-6 h-6 text-gray-600" />
+        <Bell className="w-6 h-6 text-white" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+          <span
+            className={`absolute -top-1 ${
+              language === "ar" ? "-left-1" : "-right-1"
+            } bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center`}
+          >
             {unreadCount}
           </span>
         )}
@@ -191,9 +195,9 @@ const NotificationBell = () => {
 
       {showDropdown && (
         <div
-          className={`fixed md:absolute left-1/2 md:left-auto transform -translate-x-1/2 md:translate-x-0 top-16 md:top-auto ${
-            language === "ar" ? "md:right-0" : "md:left-0"
-          } mt-2 w-[calc(100vw-2rem)] md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-y-auto mx-auto md:mx-0`}
+          className={`fixed md:absolute ${
+            language === "ar" ? "md:right-0 right-0" : "md:left-0 left-0"
+          } top-16 md:top-full mt-2 w-[calc(100vw-2rem)] md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-y-auto mx-4 md:mx-0`}
           style={{ direction: language === "ar" ? "rtl" : "ltr" }}
         >
           <div className="p-4 border-b border-gray-200 bg-gray-50">
@@ -215,7 +219,11 @@ const NotificationBell = () => {
                   }`}
                   onClick={() => markAsRead(notification.id)}
                 >
-                  <div className="flex justify-between items-start gap-4">
+                  <div
+                    className={`flex items-start gap-4 ${
+                      language === "ar" ? "flex-row-reverse" : "flex-row"
+                    }`}
+                  >
                     <div className="flex-1 min-w-0">
                       <p className="text-sm md:text-base font-bold text-gray-900 mb-1 md:mb-2 break-words">
                         {notification.title}
@@ -223,12 +231,12 @@ const NotificationBell = () => {
                       <p className="text-sm md:text-base text-gray-600 mb-1 md:mb-2 break-words whitespace-pre-wrap">
                         {notification.message}
                       </p>
-                      <p className="text-xs md:text-sm text-gray-400 whitespace-nowrap">
+                      <p className="text-xs md:text-sm text-gray-400">
                         {formatTimestamp(notification.timestamp)}
                       </p>
                     </div>
                     {!notification.read && (
-                      <span className="w-2 md:w-3 h-2 md:h-3 bg-blue-500 rounded-full mt-2 flex-shrink-0"></span>
+                      <span className="w-2 md:w-3 h-2 md:h-3 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
                     )}
                   </div>
                 </div>
@@ -279,12 +287,11 @@ const Header = ({ onMenuClick }) => {
             </button>
           </div>
 
-          {/* Title and Bell - Centered on both mobile and desktop */}
-          <div className="flex items-center justify-center gap-4">
+          {/* Title - Centered */}
+          <div className="flex items-center justify-center">
             <h1 className="text-xl md:text-2xl font-bold text-blue-900 text-center">
               {translations.title}
             </h1>
-            <NotificationBell />
           </div>
 
           {/* Spacer for desktop layout */}
@@ -343,7 +350,7 @@ const AIServiceCard = ({ icon, title, description, link }) => (
     <img
       src={icon}
       alt={title}
-      className="h-16 w-16 md:h-20 md:w-20 mb-3md:mb-4 transform group-hover:scale-110 transition-transform"
+      className="h-16 w-16 md:h-20 md:w-20 mb-3 md:mb-4 transform group-hover:scale-110 transition-transform"
     />
     <h3 className="text-lg md:text-xl font-bold text-white mb-2">{title}</h3>
     <p className="text-sm md:text-base text-blue-100 text-center">
@@ -483,9 +490,12 @@ const MainContent = () => {
     <div className="p-4 md:p-6 space-y-6 md:space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         <div className="bg-gradient-to-br from-blue-800 to-blue-900 rounded-xl p-4 md:p-6 shadow-lg">
-          <h2 className="text-lg md:text-xl font-bold text-white mb-4 md:mb-6">
-            {translations.linksAndDirections}
-          </h2>
+          <div className="flex items-center justify-between mb-4 md:mb-6">
+            <h2 className="text-lg md:text-xl font-bold text-white">
+              {translations.linksAndDirections}
+            </h2>
+            <NotificationBell />
+          </div>
           <div className="space-y-3">
             <QuickActionCard
               title={translations.addNotes}
