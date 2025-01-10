@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getDatabase, ref, onValue, remove } from "firebase/database";
 import { useNavigate } from "react-router-dom";
-import { LogOut, ArrowRight, Trash2, Download } from "lucide-react";
+import { LogOut, ArrowRight, Trash2, Download, Image } from "lucide-react";
 import * as XLSX from "xlsx";
 
+// Header component remains the same
 const Header = () => {
   const navigate = useNavigate();
   return (
@@ -42,14 +43,16 @@ const ImportantDatesPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isAuthorized, setIsAuthorized] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [filters, setFilters] = useState({
     date: "",
     day: "",
     title: "",
     content: "",
   });
+  const tableRef = useRef(null);
 
-  // Authentication check
+  // Authentication check remains the same
   useEffect(() => {
     const checkAuth = () => {
       const username = localStorage.getItem("username");
@@ -83,6 +86,69 @@ const ImportantDatesPage = () => {
     XLSX.writeFile(wb, "المواعيد_الهامة.xlsx");
   };
 
+  const prepareForExport = () => {
+    if (tableRef.current) {
+      const containerDiv = document.createElement("div");
+      containerDiv.style.backgroundColor = "#ffffff";
+      containerDiv.style.padding = "20px";
+      containerDiv.style.width = "fit-content";
+
+      const tableCopy = tableRef.current.cloneNode(true);
+      tableCopy.style.width = "auto";
+      tableCopy.style.maxWidth = "none";
+      tableCopy.style.whiteSpace = "nowrap";
+
+      containerDiv.appendChild(tableCopy);
+      return containerDiv;
+    }
+    return null;
+  };
+
+  const handleExportToImage = async () => {
+    try {
+      setIsExporting(true);
+      const html2canvas = (await import("html2canvas")).default;
+
+      const exportElement = prepareForExport();
+      if (!exportElement) return;
+
+      document.body.appendChild(exportElement);
+
+      const canvas = await html2canvas(exportElement, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        width: exportElement.offsetWidth,
+        height: exportElement.offsetHeight,
+        windowWidth: exportElement.offsetWidth,
+        windowHeight: exportElement.offsetHeight,
+        backgroundColor: "#ffffff",
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.body.lastChild;
+          clonedElement.style.width = "auto";
+          clonedElement.style.height = "auto";
+          clonedElement.style.position = "relative";
+        },
+      });
+
+      document.body.removeChild(exportElement);
+
+      const image = canvas.toDataURL("image/png", 1.0);
+      const downloadLink = document.createElement("a");
+      downloadLink.href = image;
+      downloadLink.download = "المواعيد_الهامة.png";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+    } catch (err) {
+      console.error("Error exporting to image:", err);
+      alert("حدث خطأ أثناء تصدير الصورة");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Other utility functions remain the same
   const handleDelete = async (dateId) => {
     const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذا الموعد؟");
     if (!confirmed) return;
@@ -164,7 +230,7 @@ const ImportantDatesPage = () => {
               const datesArray = Object.entries(data).map(([key, value]) => ({
                 id: key,
                 ...value,
-                day: value.day || getDayName(value.date), // Fallback for older entries
+                day: value.day || getDayName(value.date),
               }));
               const sortedDates = datesArray.sort(
                 (a, b) => new Date(a.date) - new Date(b.date)
@@ -223,21 +289,30 @@ const ImportantDatesPage = () => {
     }
 
     return (
-      <div className="bg-white rounded-lg shadow-lg overflow-x-auto">
+      <div className="bg-white rounded-lg shadow-lg">
         <div className="p-4">
           <div className="flex justify-between items-center mb-4">
-            <button
-              onClick={handleExportToExcel}
-              className="flex items-center bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200"
-            >
-              <Download className="h-5 w-5 ml-2" />
-              تصدير إلى Excel
-            </button>
+            <div className="flex space-x-4">
+              <button
+                onClick={handleExportToExcel}
+                className="flex items-center bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors duration-200 ml-4"
+              >
+                <Download className="h-5 w-5 ml-2" />
+                تصدير إلى Excel
+              </button>
+              <button
+                onClick={handleExportToImage}
+                className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200"
+              >
+                <Image className="h-5 w-5 ml-2" />
+                تصدير كصورة
+              </button>
+            </div>
             <div className="text-gray-600">
               عدد المواعيد: {filteredDates.length}
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <input
               type="text"
               placeholder="بحث حسب التاريخ"
@@ -268,55 +343,61 @@ const ImportantDatesPage = () => {
             />
           </div>
         </div>
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                التاريخ
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                اليوم
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                العنوان
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                المحتوى
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                حذف
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredDates.map((date) => (
-              <tr key={date.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  {formatDate(date.date)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  {date.day || getDayName(date.date)}
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="text-sm font-medium text-gray-900">
-                    {date.title}
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <div className="text-sm text-gray-500">{date.content}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right">
-                  <button
-                    onClick={() => handleDelete(date.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <div ref={tableRef} className="min-w-full">
+            <table className="min-w-full table-auto">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Date" : "التاريخ"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Day" : "اليوم"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Title" : "العنوان"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Status" : "المحتوى"}
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {isExporting ? "Delete" : "حذف"}
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {filteredDates.map((date) => (
+                  <tr key={date.id}>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      {formatDate(date.date)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      {date.day || getDayName(date.date)}
+                    </td>
+                    <td className="px-6 py-4text-right">
+                      <div className="text-sm font-medium text-gray-900">
+                        {date.title}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="text-sm text-gray-500">
+                        {date.content}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      <button
+                        onClick={() => handleDelete(date.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     );
   };
@@ -335,7 +416,9 @@ const ImportantDatesPage = () => {
         </div>
       </main>
       <footer className="bg-amber-400 py-3 md:py-4 fixed bottom-0 w-full">
-        <div className="container mx-auto px-4 md:px-6 flex justify-between items-center"></div>
+        <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
+          {/* Footer content if needed */}
+        </div>
       </footer>
     </div>
   );
