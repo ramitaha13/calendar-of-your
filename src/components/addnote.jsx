@@ -48,6 +48,23 @@ const AddNoteForm = () => {
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  const createNotification = async (noteTitle) => {
+    try {
+      const db = getDatabase();
+      const notificationsRef = ref(db, "notifications");
+
+      await push(notificationsRef, {
+        title: "إضافة ملاحظة جديدة",
+        message: `تم إضافة ملاحظة جديدة بعنوان: ${noteTitle}`,
+        timestamp: new Date().toISOString(),
+        read: false,
+        import: noteTitle,
+      });
+    } catch (error) {
+      console.error("Error creating notification:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -58,11 +75,15 @@ const AddNoteForm = () => {
       const db = getDatabase();
       const notesRef = ref(db, "notes");
 
+      // Save the note
       await push(notesRef, {
         title,
         content,
         date: new Date().toISOString(),
       });
+
+      // Create a notification for the new note
+      await createNotification(title);
 
       setSuccess(true);
       setTitle("");
@@ -151,7 +172,6 @@ const AddNotePage = () => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
 
-  // Authentication check
   useEffect(() => {
     const checkAuth = () => {
       const username = localStorage.getItem("username");

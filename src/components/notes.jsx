@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getDatabase, ref, onValue, remove } from "firebase/database";
+import { getDatabase, ref, onValue, remove, get } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { LogOut, ArrowRight, Trash2 } from "lucide-react";
 
@@ -42,7 +42,7 @@ const NoteCard = ({ note, onDelete }) => {
   const handleDeleteClick = () => {
     const confirmed = window.confirm("هل أنت متأكد أنك تريد حذف هذه الملاحظة؟");
     if (confirmed) {
-      onDelete(note.id);
+      onDelete(note.id, note.title);
     }
   };
 
@@ -124,11 +124,37 @@ const NotesPage = () => {
     return () => unsubscribe();
   }, [navigate]);
 
-  const handleDelete = async (noteId) => {
+  const handleDelete = async (noteId, noteTitle) => {
     try {
       const db = getDatabase();
+
+      // Delete the note
       const noteRef = ref(db, `notes/${noteId}`);
       await remove(noteRef);
+
+      // Find and delete corresponding notification
+      const notificationsRef = ref(db, "notifications");
+      const notificationsSnapshot = await get(notificationsRef);
+
+      if (notificationsSnapshot.exists()) {
+        const notifications = notificationsSnapshot.val();
+
+        // Find notifications that match this note's title
+        Object.entries(notifications).forEach(
+          async ([notificationId, notification]) => {
+            if (
+              notification.message &&
+              notification.message.includes(noteTitle)
+            ) {
+              const notificationRef = ref(
+                db,
+                `notifications/${notificationId}`
+              );
+              await remove(notificationRef);
+            }
+          }
+        );
+      }
     } catch (err) {
       setError("Error deleting note");
       console.error("Error deleting note:", err);
