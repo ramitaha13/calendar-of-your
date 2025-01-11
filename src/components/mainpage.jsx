@@ -29,6 +29,7 @@ import Gemini1 from "/src/assets/3.JPG";
 import gmail1 from "/src/assets/4.JPG";
 import outlook1 from "/src/assets/5.JPG";
 import whatsapp1 from "/src/assets/6.JPG";
+import maps1 from "/src/assets/7.JPG";
 
 const LanguageContext = createContext();
 
@@ -60,6 +61,7 @@ const translations = {
     chatGPTDescription: "آلة تقوم بكل شيء من أجلك وتجعل حياتك سهلة",
     geminiDescription: "ذكاء اصطناعي متقدم يساعدك في جميع المهام",
     whatsappDescription: "تواصل بسهولة مع العائلة والأصدقاء",
+    mapsDescription: "خريطة Google لمعرفة موقع كابول",
     importantWebsites: "مواقع مهمة",
     notifications: "الإشعارات",
     noNotifications: "لا توجد إشعارات",
@@ -91,6 +93,7 @@ const translations = {
     chatGPTDescription: "מכונה שעושה הכל בשבילך והופכת את חייך לקלים",
     geminiDescription: "בינה מלאכותית מתקדמת שעוזרת לך בכל המשימות",
     whatsappDescription: "תקשורת קלה עם משפחה וחברים",
+    mapsDescription: "מפת Google לאיתור כאבול",
     importantWebsites: "אתרים חשובים",
     notifications: "התראות",
     noNotifications: "אין התראות",
@@ -538,7 +541,7 @@ const MainContent = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
             <AIServiceCard
               icon={chatgpt1}
               title="ChatGPT"
@@ -551,11 +554,20 @@ const MainContent = () => {
               description={translations.geminiDescription}
               link="https://gemini.google.com"
             />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
             <AIServiceCard
               icon={whatsapp1}
               title="WhatsApp"
               description={translations.whatsappDescription}
               link="https://web.whatsapp.com"
+            />
+            <AIServiceCard
+              icon={maps1}
+              title="Google Maps"
+              description={translations.mapsDescription}
+              link="https://www.google.com/maps/place/%D7%9B%D7%90%D7%91%D7%95%D7%9C%E2%80%AD/@32.8766468,35.2248931,14z/data=!3m1!4b1!4m6!3m5!1s0x151dcaca97912bbd:0x892b5739008514ff!8m2!3d32.8700114!4d35.2071305!16s%2Fm%2F0281j1b?entry=ttu"
             />
           </div>
         </div>
