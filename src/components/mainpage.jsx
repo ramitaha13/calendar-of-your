@@ -28,6 +28,7 @@ import chatgpt1 from "/src/assets/2.JPG";
 import Gemini1 from "/src/assets/3.JPG";
 import gmail1 from "/src/assets/4.JPG";
 import outlook1 from "/src/assets/5.JPG";
+import whatsapp1 from "/src/assets/6.JPG";
 
 const LanguageContext = createContext();
 
@@ -58,6 +59,7 @@ const translations = {
     son: "ابنك",
     chatGPTDescription: "آلة تقوم بكل شيء من أجلك وتجعل حياتك سهلة",
     geminiDescription: "ذكاء اصطناعي متقدم يساعدك في جميع المهام",
+    whatsappDescription: "تواصل بسهولة مع العائلة والأصدقاء",
     importantWebsites: "مواقع مهمة",
     notifications: "الإشعارات",
     noNotifications: "لا توجد إشعارات",
@@ -88,6 +90,7 @@ const translations = {
     son: "בנך",
     chatGPTDescription: "מכונה שעושה הכל בשבילך והופכת את חייך לקלים",
     geminiDescription: "בינה מלאכותית מתקדמת שעוזרת לך בכל המשימות",
+    whatsappDescription: "תקשורת קלה עם משפחה וחברים",
     importantWebsites: "אתרים חשובים",
     notifications: "התראות",
     noNotifications: "אין התראות",
@@ -535,7 +538,7 @@ const MainContent = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
             <AIServiceCard
               icon={chatgpt1}
               title="ChatGPT"
@@ -547,6 +550,12 @@ const MainContent = () => {
               title="Gemini AI"
               description={translations.geminiDescription}
               link="https://gemini.google.com"
+            />
+            <AIServiceCard
+              icon={whatsapp1}
+              title="WhatsApp"
+              description={translations.whatsappDescription}
+              link="https://web.whatsapp.com"
             />
           </div>
         </div>
