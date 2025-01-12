@@ -188,64 +188,54 @@ const NotificationBell = () => {
     >
       <button
         onClick={() => setShowDropdown(!showDropdown)}
-        className="relative p-2 rounded-full hover:bg-white/10 transition-colors duration-200"
+        className={`relative p-2 rounded-full hover:bg-white/20 transition-all duration-300 focus:ring-2 focus:ring-white/50 ${
+          unreadCount > 0 ? "animate-pulse" : ""
+        }`}
       >
         <Bell className="w-6 h-6 text-white" />
         {unreadCount > 0 && (
-          <span
-            className={`absolute -top-1 ${
-              language === "ar" ? "-left-1" : "-right-1"
-            } bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center`}
-          >
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
             {unreadCount}
           </span>
         )}
       </button>
 
       {showDropdown && (
-        <div
-          className={`fixed md:absolute ${
-            language === "ar" ? "md:right-0 right-0" : "md:left-0 left-0"
-          } top-16 md:top-full mt-2 w-[calc(100vw-2rem)] md:w-96 bg-white rounded-lg shadow-xl z-50 max-h-[80vh] overflow-y-auto mx-4 md:mx-0`}
-          style={{ direction: language === "ar" ? "rtl" : "ltr" }}
-        >
-          <div className="p-4 border-b border-gray-200 bg-gray-50">
-            <h3 className="text-lg md:text-xl font-bold text-gray-800 whitespace-nowrap">
+        <div className="fixed md:absolute right-0 top-16 md:top-full mt-2 w-[calc(100vw-2rem)] md:w-96 bg-white rounded-2xl shadow-2xl z-50 max-h-[80vh] overflow-y-auto mx-4 md:mx-0 border border-gray-100">
+          <div className="p-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-blue-100/50">
+            <h3 className="text-lg font-bold text-gray-800">
               {translations.notifications}
             </h3>
           </div>
           {!notifications || notifications.length === 0 ? (
-            <div className="p-6 text-center text-gray-500 text-base md:text-lg">
-              {translations.noNotifications}
+            <div className="p-8 text-center">
+              <Bell className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <p className="text-gray-500">{translations.noNotifications}</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-100">
               {notifications.map((notification) => (
                 <div
                   key={notification.id}
-                  className={`p-4 hover:bg-gray-50 transition-colors duration-200 cursor-pointer ${
-                    !notification.read ? "bg-blue-50" : ""
+                  className={`p-4 hover:bg-blue-50 transition-all duration-300 cursor-pointer ${
+                    !notification.read ? "bg-blue-50/50" : ""
                   }`}
                   onClick={() => markAsRead(notification.id)}
                 >
-                  <div
-                    className={`flex items-start gap-4 ${
-                      language === "ar" ? "flex-row-reverse" : "flex-row"
-                    }`}
-                  >
+                  <div className="flex items-start gap-4">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm md:text-base font-bold text-gray-900 mb-1 md:mb-2 break-words">
+                      <p className="text-sm font-semibold text-gray-900 mb-1">
                         {notification.title}
                       </p>
-                      <p className="text-sm md:text-base text-gray-600 mb-1 md:mb-2 break-words whitespace-pre-wrap">
+                      <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                         {notification.message}
                       </p>
-                      <p className="text-xs md:text-sm text-gray-400">
+                      <p className="text-xs text-gray-400">
                         {formatTimestamp(notification.timestamp)}
                       </p>
                     </div>
                     {!notification.read && (
-                      <span className="w-2 md:w-3 h-2 md:h-3 bg-blue-500 rounded-full mt-2 flex-shrink-0" />
+                      <span className="w-2 h-2 bg-blue-500 rounded-full mt-2" />
                     )}
                   </div>
                 </div>
