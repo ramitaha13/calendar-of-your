@@ -1,215 +1,143 @@
-import React, { useState, useEffect } from "react";
-import { LogIn, Clock, Share2, Calendar, Clock3 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { getDatabase, ref, onValue } from "firebase/database";
+import React, { useState } from "react";
+import * as XLSX from "xlsx";
 
-const Alert = ({ children }) => (
-  <div className="fixed top-4 left-4 bg-blue-100 border border-blue-600 text-blue-800 p-4 rounded-lg">
-    {children}
-  </div>
-);
-
-const HomePage = () => {
-  const navigate = useNavigate();
-  const [profileImage, setProfileImage] = useState("");
-  const [backgroundImage, setBackgroundImage] = useState("");
-  const [showShareAlert, setShowShareAlert] = useState(false);
-  const [currentTime, setCurrentTime] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-    date: "",
-    day: "",
+const Home = () => {
+  const [data, setData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [filters, setFilters] = useState({
+    personalName: "",
+    familyName: "",
+    amount: "",
   });
 
-  useEffect(() => {
-    const db = getDatabase();
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
 
-    const profileRef = ref(db, "profile/imageURL");
-    const profileUnsubscribe = onValue(profileRef, (snapshot) => {
-      const imageURL = snapshot.val();
-      if (imageURL) {
-        setProfileImage(imageURL);
-      }
-    });
+    reader.onload = (event) => {
+      const workbook = XLSX.read(event.target.result, { type: "binary" });
+      const worksheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[worksheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-    const backgroundRef = ref(db, "background/imageURL");
-    const backgroundUnsubscribe = onValue(backgroundRef, (snapshot) => {
-      const imageURL = snapshot.val();
-      if (imageURL) {
-        setBackgroundImage(imageURL);
-      }
-    });
+      const processedData = jsonData.map((item) => ({
+        personalName: item["الاسم الشخصي"] || "",
+        familyName: item["العائلة"] || "",
+        amount: item["المبلغ"] || 0,
+      }));
 
-    const updateTime = () => {
-      const now = new Date();
-      const daysInArabic = [
-        "الأحد",
-        "الإثنين",
-        "الثلاثاء",
-        "الأربعاء",
-        "الخميس",
-        "الجمعة",
-        "السبت",
-      ];
-
-      const day = String(now.getDate()).padStart(2, "0");
-      const month = String(now.getMonth() + 1).padStart(2, "0");
-      const year = now.getFullYear();
-      const formattedDate = `${day}/${month}/${year}`;
-
-      setCurrentTime({
-        hours: now.getHours(),
-        minutes: now.getMinutes(),
-        seconds: now.getSeconds(),
-        date: formattedDate,
-        day: daysInArabic[now.getDay()],
-      });
+      setData(processedData);
+      setFilteredData(processedData);
     };
 
-    updateTime();
-    const timer = setInterval(updateTime, 1000);
+    reader.readAsBinaryString(file);
+  };
 
-    return () => {
-      clearInterval(timer);
-      profileUnsubscribe();
-      backgroundUnsubscribe();
-    };
-  }, []);
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    const newFilters = { ...filters, [name]: value };
+    setFilters(newFilters);
 
-  const handleShare = async () => {
-    const shareData = {
-      title: "مكتب السكرتارية",
-      text: "صفحة ختام طه - سكرتيرة رئيس المجلس المحلي",
-      url: window.location.href,
-    };
+    const filtered = data.filter(
+      (item) =>
+        (newFilters.personalName === "" ||
+          item.personalName
+            .toLowerCase()
+            .includes(newFilters.personalName.toLowerCase())) &&
+        (newFilters.familyName === "" ||
+          item.familyName
+            .toLowerCase()
+            .includes(newFilters.familyName.toLowerCase())) &&
+        (newFilters.amount === "" ||
+          item.amount.toString().includes(newFilters.amount))
+    );
 
-    try {
-      if (navigator.share) {
-        await navigator.share(shareData);
-      } else {
-        await navigator.clipboard.writeText(window.location.href);
-        setShowShareAlert(true);
-        setTimeout(() => setShowShareAlert(false), 3000);
-      }
-    } catch (err) {}
+    setFilteredData(filtered);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50" dir="rtl">
-      {/* Mobile-optimized Navbar */}
-      <nav className="bg-white shadow-sm sticky top-0 z-50 backdrop-blur-md bg-white/80">
-        <div className="container mx-auto px-4 sm:px-6">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 sm:h-16 gap-4 sm:gap-0">
-            <div className="text-xl sm:text-2xl font-bold text-blue-600 text-center sm:text-right">
-              مكتب السكرتارية
-            </div>
-            <div className="flex justify-center sm:justify-end gap-3">
-              <button
-                onClick={handleShare}
-                className="px-4 py-2 rounded-full bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-all duration-300 flex items-center gap-2"
-              >
-                <Share2 className="w-5 h-5" />
-                <span>مشاركة</span>
-              </button>
-              <button
-                onClick={() => navigate("/login")}
-                className="px-4 py-2 rounded-full bg-blue-600 text-white font-medium hover:bg-blue-700 transition-all duration-300 flex items-center gap-2"
-              >
-                <LogIn className="w-5 h-5" />
-                <span>تسجيل الدخول</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="bg-gray-50 min-h-screen flex flex-col items-center justify-center p-6 font-arabic">
+      <div className="w-full max-w-5xl bg-white shadow-lg rounded-lg p-8">
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+          مرشح الملفات الإكسل
+        </h1>
 
-      {showShareAlert && <Alert>تم نسخ الرابط بنجاح</Alert>}
-
-      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Mobile-optimized Profile Hero Section */}
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden mb-6 sm:mb-8">
-          <div
-            className="h-72 sm:h-[28rem] relative"
-            style={{
-              backgroundImage: `url(${
-                backgroundImage || "/api/placeholder/800/300"
-              })`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          >
-            <div className="absolute -bottom-20 sm:-bottom-28 right-1/2 sm:right-8 transform translate-x-1/2 sm:translate-x-0 flex items-end">
-              <div className="w-40 h-40 sm:w-56 sm:h-56 rounded-full border-4 border-white bg-white shadow-md overflow-hidden">
-                <img
-                  src={profileImage || "/api/placeholder/200/200"}
-                  alt="ختام طه"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-24 sm:pt-32 px-4 sm:px-8 pb-6 sm:pb-8">
-            <div className="flex flex-col items-center sm:items-start gap-4">
-              <div className="text-center sm:text-right">
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  ختام طه
-                </h1>
-                <p className="text-blue-600 font-medium mb-1">
-                  سكرتيرة رئيس المجلس المحلي
-                </p>
-                <p className="text-gray-500">מזכירה ח'תאם טאהא</p>
-              </div>
-              <div className="flex items-center gap-3 text-gray-600">
-                <Calendar className="w-5 h-5" />
-                <span>{currentTime.date}</span>
-              </div>
-            </div>
-          </div>
+        <div className="mb-6 flex flex-col items-center">
+          <input
+            type="file"
+            accept=".xlsx, .xls"
+            onChange={handleFileUpload}
+            className="file:bg-blue-500 file:text-white file:px-4 file:py-2 file:rounded file:border-none hover:file:bg-blue-600 text-gray-500"
+          />
         </div>
 
-        {/* Mobile-optimized Time Display Section */}
-        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-8">
-          <div className="flex items-center justify-center gap-3 mb-6 sm:mb-8">
-            <Clock3 className="w-6 h-6 text-blue-600" />
-            <h2 className="text-xl font-bold text-gray-800">الوقت الحالي</h2>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-            {/* Day Card */}
-            <div className="bg-gray-50 rounded-xl p-4 sm:p-6 text-center">
-              <div className="text-base sm:text-lg font-medium text-gray-500 mb-2">
-                اليوم
-              </div>
-              <div className="text-xl sm:text-2xl font-bold text-blue-600">
-                {currentTime.day}
-              </div>
-            </div>
-
-            {/* Time Cards */}
-            {[
-              { value: currentTime.hours, label: "ساعة" },
-              { value: currentTime.minutes, label: "دقيقة" },
-              { value: currentTime.seconds, label: "ثانية" },
-            ].map((time, index) => (
-              <div
-                key={index}
-                className="bg-gray-50 rounded-xl p-4 sm:p-6 text-center transform hover:scale-105 transition-transform duration-300"
-              >
-                <div className="text-base sm:text-lg font-medium text-gray-500 mb-2">
-                  {time.label}
-                </div>
-                <div className="text-xl sm:text-3xl font-bold text-blue-600">
-                  {String(time.value).padStart(2, "0")}
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-3 gap-4 mb-6 text-right">
+          <input
+            type="text"
+            name="personalName"
+            placeholder="الاسم الشخصي"
+            value={filters.personalName}
+            onChange={handleFilterChange}
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="text"
+            name="familyName"
+            placeholder="العائلة"
+            value={filters.familyName}
+            onChange={handleFilterChange}
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <input
+            type="text"
+            name="amount"
+            placeholder="المبلغ"
+            value={filters.amount}
+            onChange={handleFilterChange}
+            className="border border-gray-300 p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-      </main>
+
+        <div className="text-center mb-2 text-gray-600">
+          عدد الصفوف: {filteredData.length}
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse bg-white shadow-md rounded-lg overflow-hidden">
+            <thead className="bg-blue-500 text-white">
+              <tr>
+                <th className="p-3 text-center border-x border-white">
+                  الاسم الشخصي
+                </th>
+                <th className="p-3 text-center border-x border-white">
+                  العائلة
+                </th>
+                <th className="p-3 text-center border-x border-white">
+                  المبلغ
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredData.map((item, index) => (
+                <tr
+                  key={index}
+                  className="border-b hover:bg-gray-100 transition-colors"
+                >
+                  <td className="p-3 text-center border-x">
+                    {item.personalName}
+                  </td>
+                  <td className="p-3 text-center border-x">
+                    {item.familyName}
+                  </td>
+                  <td className="p-3 text-center border-x">{item.amount}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default HomePage;
+export default Home;
