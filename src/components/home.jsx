@@ -129,7 +129,7 @@ const Home = () => {
                   <td className="p-3 text-center border-x">
                     {item.familyName}
                   </td>
-                  <td className="p-3 text-center border-x">{item.amount}</td>
+                  <td className="p-2 text-center border-x">{item.amount}</td>
                 </tr>
               ))}
             </tbody>
